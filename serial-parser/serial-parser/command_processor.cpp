@@ -833,13 +833,23 @@ uint8_t process_wan_command(char *linkplay_command)
     //  AXX+WAN+LST4E4554474541523137,0,1;7866696E69747977696669,0,0;726F636C6F6E65,0,1&
     //  AXX+WAN+LST5053415544494F,10,1;50534755455354,10,1;5053417564696F5850,10,1&
 
+      /*
+        "AXX+VOL+GET"                                                   // Get the current volume level
+        "AXX+VOL+xxx"                                                   // WiFi module will confirm volume change by replying AXX+VOL+xxx
+        "AXX+VOL+nnn"                                                   // WiFi module sends this command to request volume change,
+                                                                        // where nnn is the volume (0 to 100)
+    */
+
+    //  AXX+WAN+LST4E4554474541523137,0,1;7866696E69747977696669,0,0;726F636C6F6E65,0,1&
     char hex_ap[100];
     char ascii_ap[100];
-
+    
+    uint16_t c = 0; 
     uint16_t i = 0;
+    uint16_t p = 0;
     uint16_t m = 0;
-
     uint8_t num_aps = 0;
+    uint16_t netwrk_srt = 11;
 
     if (linkplay_command[11] != '&')
     {
@@ -858,26 +868,48 @@ uint8_t process_wan_command(char *linkplay_command)
             break;
         }
     }
+    Serial.print("Found ");
+    Serial.print(num_aps);
+    Serial.println(" network(s):");   
     
-    Serial.println(num_aps);
     i = 0; 
-    for (i = 11; i < 1024; i++)
+    for ( i = 0; i < ((num_aps * 3) +1); i++)
     {
-        if (linkplay_command[i] == ',');
+        for (p = netwrk_srt; p < 1024; p++)
         {
-            m = i;
-            break;
-        } 
+            c++;
+            if ((linkplay_command[p] == ',') || (linkplay_command[p] == ';') || ((linkplay_command[p] == '&')))
+            {
+                break;
+            } 
+        }
+        
+        strncpy(hex_ap, (linkplay_command + netwrk_srt), c-1); 
+        strncat(hex_ap, "\0", m);
+
+        switch (m)
+        {
+            case 0:
+                hex2ascii(hex_ap, ascii_ap, strlen(hex_ap), strlen(ascii_ap));
+                Serial.print("Network: ");
+                Serial.println(ascii_ap);
+                break;
+            case 1: 
+                Serial.print("Channel: ");
+                Serial.println(atoi(hex_ap));
+                break;
+            case 2:
+                Serial.print("Security: ");
+                Serial.println(atoi(hex_ap));
+                break;
+        }
+        
+        m < 2 ? m++ : (m = 0);
+        memset(hex_ap, 0, 100);
+        memset(ascii_ap, 0, 100);
+        netwrk_srt += c;
+        c = 0;
     }
-    strncpy(hex_ap, (linkplay_command + 11), m); 
-    strncat(hex_ap, "\0", m);
-    hex2ascii(hex_ap, ascii_ap, strlen(hex_ap), strlen(ascii_ap));
-    Serial.print("Access point 1: ");
-    Serial.println(ascii_ap);
-    memset(hex_ap, 0, 100);
-    Serial.print("Channel: ");
-    Serial.print(linkplay_command[m+1]);
-    Serial.println(linkplay_command[m+2]);
     
 }
 
