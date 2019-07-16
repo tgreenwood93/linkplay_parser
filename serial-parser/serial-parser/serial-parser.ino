@@ -51,7 +51,8 @@ if (done_once == false)
     checkSerial1();
     if (true == doneRecieving)
     {
-        Serial.println(newMsg);
+        Serial.print(newMsg);
+        Serial.print(": ");
         processCommand(newMsg); 
         memset(newMsg, 0, 1026);
         doneRecieving = false; 

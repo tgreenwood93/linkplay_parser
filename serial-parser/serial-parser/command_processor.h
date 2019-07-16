@@ -122,6 +122,7 @@ uint8_t process_nxt_command(char* linkplay_command);                    // Linkp
 uint8_t process_plm_command(char* linkplay_command);                    // Linkplay playback mode commands
 uint8_t process_plp_command(char* linkplay_command);                    // Linkplay repeat mode commands
 uint8_t process_ply_command(char* linkplay_command);                    // Linkplay playback commands
+uint8_t process_pmt_command(char* linkplay_command);                    // Linkplay voice prompt commands
 uint8_t process_ra0_command(char* linkplay_command);                    // Linkplay wifi access point information commands
 uint8_t process_set_command(char* linkplay_command);                    // Linkplay set time change commands (YYYYMMDDHHMMSS and mon/tue/wed/.../sun)
 uint8_t process_sta_command(char* linkplay_command);                    // Linkplay wireless status commands

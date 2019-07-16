@@ -196,6 +196,9 @@ uint8_t process_p_commands(char* linkplay_command)
         case 'P':
             process_plp_command(linkplay_command);                      // Linkplay repeat mode commands
             break;
+        case 'T':
+            process_pmt_command(linkplay_command);
+            break;
         case 'Y':
             process_ply_command(linkplay_command);                      // Linkplay playback commands
             break;     
@@ -263,10 +266,6 @@ uint8_t process_w_commands(char* linkplay_command)
             break;  
     }
 }
-
-
-
-
 
 uint8_t process_bot_command(char* linkplay_command)                   // Linkplay firmware updating commands
 {
@@ -723,7 +722,8 @@ uint8_t process_plp_command(char* linkplay_command)                    // Linkpl
                                                                         // 003 Shuffle, no repeat
                                                                         // Other No repeat
     */
- 
+    // spotify doesn't trigger these messages. 
+    
     uint16_t repeat_status = 0;
 
     repeat_status = linkplay_command_data_extraction(linkplay_command);
@@ -771,7 +771,25 @@ uint8_t process_ply_command(char* linkplay_command)                    // Linkpl
     }
     return 0;
 }
- 
+uint8_t process_pmt_command(char* linkplay_command)                    // Linkplay voice prompt commands
+{
+    switch(linkplay_command_data_extraction(linkplay_command))
+    {
+        case 0: 
+            Serial.println("voice prompt start");
+            break;
+        case 1:
+            Serial.println("voice prompt stopped");
+            break; 
+        case 2:
+            Serial.println("voice prompt disabled");
+            break; 
+        case 3: 
+            Serial.println("voice prompt can be triggered by PIC");
+            break;        
+    }
+}
+
 uint8_t process_ra0_command(char* linkplay_command)                    // Linkplay wifi access point information commands
 {
     /*
@@ -1164,6 +1182,5 @@ AXX+WAN+LST&
 AXX+WAN+LST4E4554474541523137,0,1;7866696E69747977696669,0,0;726F636C6F6E65,0,1&
 AXX+STA+000
 AXX+STA+006
-
 AXX+MEA+DAT54686520536967687473;456e746572205368696b617269;54686520537061726b&
 */
