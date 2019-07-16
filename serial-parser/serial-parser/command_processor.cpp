@@ -29,6 +29,12 @@ uint8_t process_linkplay_commands(char* linkplay_command)
         case 'F':
             process_f_commands(linkplay_command);
             break;
+        case 'G':
+            process_g_commands(linkplay_command);
+            break;
+        case 'I':
+            process_i_commands(linkplay_command);
+            break;
         case 'L':
             process_l_commands(linkplay_command);
             break;
@@ -120,13 +126,36 @@ uint8_t process_f_commands(char* linkplay_command)
             break;  
     }  
 }
- 
+
+uint8_t process_g_commands(char* linkplay_command)
+{
+    switch (linkplay_command[5])
+    {
+        case 'E':
+            process_get_command(linkplay_command);                     // Linkplay factory get commands
+            break;
+        default:
+            break;  
+    }  
+}
+
+uint8_t process_i_commands(char* linkplay_command)
+{
+    switch (linkplay_command[5])
+    {
+         case '2':
+            process_i2s_command(linkplay_command);                     // Linkplay factory get commands
+            break;
+        default:
+            break;  
+    }
+}
 uint8_t process_l_commands(char* linkplay_command)
 {
     switch (linkplay_command[5])
     {
         case 'E':
-            process_led_command(linkplay_command);                      // Linkplay factory teset commands
+            process_led_command(linkplay_command);                      // Linkplay factory reset commands
             break;
         default:
             break;  
@@ -143,6 +172,9 @@ uint8_t process_m_commands(char* linkplay_command)
         case 'E':
             process_mea_command(linkplay_command);                      // Linkplay meadia metadata commands
             break;
+        case 'I':
+            process_mic_command(linkplay_command);                      // Linkplay meadia metadata commands
+            break;            
         case 'U':
             process_mut_command(linkplay_command);                      // Linkplay command to mute audio
             break;
@@ -165,7 +197,7 @@ uint8_t process_p_commands(char* linkplay_command)
             process_plp_command(linkplay_command);                      // Linkplay repeat mode commands
             break;
         case 'Y':
-           process_ply_command(linkplay_command);                      // Linkplay playback commands
+            process_ply_command(linkplay_command);                      // Linkplay playback commands
             break;     
         default:
             break;  
@@ -277,6 +309,18 @@ uint8_t process_cap_command(char* linkplay_command)                   // Linkpla
         "AXX+CAP+GET"                                                   // command on the first boot after a factory reset. The returned information will be saved permanently.
     */
     Serial.println("Linkplay booted after factory reset, needs pertinent information");
+    Serial1.print("MCU+CAP+PRJPSAUDIO_Stellar&");
+    Serial1.print("MCU+PTV+000");
+    Serial1.print("MCU+SPY+BRNPSAUDIO&");
+    Serial1.print("MCU+SPY+NAMStellarIntegrated&");
+    Serial1.print("MCU+SPY+TYP0&");
+    Serial1.print("MCU+CAP+00100001100&");
+    Serial1.print("MCU+CAP+00200000800&");
+    Serial1.print("MCU+CAP+LAUen_us&");
+    
+    Serial1.print("MCU+CAP+STMfffffffc&");
+    Serial1.print("MCU+CAP+PLM00000000&");
+    Serial1.print("MCU+PRESET+3&");
 }
  
 uint8_t process_chn_command(char* linkplay_command)                    // Linkplay channel information (stereo / mono left / mono right)
@@ -320,7 +364,7 @@ uint8_t process_dev_command(char* linkplay_command)                    // Linkpl
        // "AXX+DEV+RST"                                                   // MCU should NOT automatically reboot or power off WiFi module after updating the firmware.
                                                                         // It should wait for WiFi module to send AXX+DEV+RST or AXX+DEV+RST in case AXX+DEV+RST gets lost.
 
-       Serial.println("linplay is resetting - don't poll it until it gives the ok");
+       Serial.println("linkplay is resetting - don't poll it until it gives the ok");
 }
  
 uint8_t process_eth_command(char* linkplay_command)                    // Linkplay ethernet commands
@@ -334,7 +378,6 @@ uint8_t process_eth_command(char* linkplay_command)                    // Linkpl
     */
   
     uint16_t ethernet_status = 0;
-
 
     if (strncmp((linkplay_command + 8), "FFF", 3) == 0)
     {
@@ -364,7 +407,65 @@ uint8_t process_fac_command(char* linkplay_command)                    // Linkpl
     //   "AXX+FACTORY"                                                   // WiFi sends this command to notify MCU that it is going to do a factory reset
     Serial.println("Linkplay is factory resetting.\nWe'll need to supply it information upon it rebooting.");
 }
+
+uint8_t process_get_command(char* linkplay_command)
+{
+    Serial.println("Set SSID of linkplay");
+    Serial1.println("MCU+SID+StellarIntegrated");
+}
+
+uint8_t process_i2s_command(char* linkplay_command)
+{
+    // AXX+I2S+INF44100_16&
+    char c_sample_rate[100];
+    char c_bit_depth[100];
+    uint8_t sample_rate_chars = 0; 
+    uint16_t i = 0; 
+    uint16_t off_set = 11; 
+    uint16_t samp_depth = 0; 
+    
+    if (linkplay_command[11] == '&')
+    {
+        return 1;  
+    }
+  
+    for (i = off_set; i < strlen(linkplay_command); i++)
+    {
+        sample_rate_chars++; 
+        if ((linkplay_command[i] == '_') || (linkplay_command[i] == '&'))
+        {
+            break; 
+        }
+    }
  
+        strncpy(c_sample_rate,linkplay_command+11, sample_rate_chars);
+        switch(atoi(c_sample_rate))
+        {
+            case 44100:
+                Serial.println("44.1 k");
+                break;
+            case 48000:
+                Serial.println("48 k");
+                break;
+            case 88200:
+                Serial.println("88.2 k");
+                break;
+            case 96000:
+                Serial.println("96 k");
+                break;
+            case 176400:
+                Serial.println("176.4 k");
+                break;
+            case 192000:
+                Serial.println("192.2 k");
+                break;
+        }
+
+        strncpy(c_bit_depth,linkplay_command+(11+sample_rate_chars), 2);
+        Serial.print(atoi(c_bit_depth));
+        Serial.println(" bit");
+}
+
 uint8_t process_led_command(char* linkplay_command)                    // Linkplay factory teset commands
 {
       //  "AXX+LED+TES"                                                   // Notify MCU that the module is in factory test mode
@@ -387,6 +488,15 @@ uint8_t process_mcu_command(char* linkplay_command)                    // Linkpl
                                                                         // '0' -> "00"
                                                                         // '+' -> "03
     */
+    if (strncmp((linkplay_command + 8), "RDY", 3) == 0)
+    {
+        Serial.println("Linkplay is ready for communication!");
+    }
+    else if (strncmp((linkplay_command + 8), "VER", 3) == 0)
+    {
+        Serial.println("Send PIC firmware version ex: 0119");;
+        Serial1.println("MCU+VER+0119&");
+    }
 }
  
 uint8_t process_mea_command(char* linkplay_command)                    // Linkplay meadia metadata commands
@@ -394,7 +504,12 @@ uint8_t process_mea_command(char* linkplay_command)                    // Linkpl
     /*
         "AXX+MEA+RDY"                                                   // Notify MCU that the WiFi module is ready to respond to MCU+MEA+GET
         "AXX+MEA+DAT(metadata)&"                                        // Update metadata, where metadata is a JSON message
+         AXX+MEA+DAT{ "title": "49277665204C6561726E656420546F204C6F7665204D7973656C66", "artist": "6C65746C6976652E", "album": "49662049276D2054686520446576696C2E2E2E", "vendor": "" }&
+
     */
+    // linkplay song titles can only be 64 chars
+
+    
     char hex_title[100];
     char hex_artist[100];
     char hex_album[100];
@@ -404,6 +519,7 @@ uint8_t process_mea_command(char* linkplay_command)                    // Linkpl
     uint16_t n = 0; 
     uint16_t l = 0; 
     uint16_t m = 0; 
+    uint16_t z = 0; 
     uint16_t p = 0; 
     uint16_t q = 0; 
     uint16_t i = 0; 
@@ -412,6 +528,10 @@ uint8_t process_mea_command(char* linkplay_command)                    // Linkpl
     memset(hex_title, 0, 100);
     memset(hex_artist, 0, 100);    
     memset(hex_album, 0, 100);
+
+    memset(ascii_title, 0, 100);
+    memset(ascii_artist, 0, 100);    
+    memset(ascii_album, 0, 100);
     
     if (strncmp((linkplay_command + 8), "RDY", 3) == 0)
     {
@@ -420,45 +540,59 @@ uint8_t process_mea_command(char* linkplay_command)                    // Linkpl
     }
     else
     {
-        for(i = 11; i < 1024; i++)
+        for(i = 23; i <= strlen(linkplay_command); i++)
         {
-            if (linkplay_command[i] == ';')
+            if (linkplay_command[i] == '"')
             {
                 n = i; 
                 break; 
             }
         }
-        strncpy(hex_title, (linkplay_command + 11), n-12);
-        strncat(hex_title, "\0", n);
+        strncpy(hex_title, (linkplay_command + 23), n-23);
+        hex_title[n-22] = '\0';
         hex2ascii(hex_title, ascii_title, strlen(hex_title), strlen(ascii_title));
         Serial.println(ascii_title);
 
-        for(i = n+1; i < 1024; i++)
+        for(i = (n+14); i < 1024; i++)
         {
-            if (linkplay_command[i] == ';')
+            if (linkplay_command[i] == '"')
             {
                 l = i; 
                 break; 
             }
         }   
-        strncpy(hex_artist, (linkplay_command + n+1), l-(1+n));
-        strncat(hex_artist, "\0", l);
+        q = l - (n+14);
+        strncpy(hex_artist, (linkplay_command + (n+14)), q);
+        hex_artist[q+1] = '\0';
         hex2ascii(hex_artist, ascii_artist, strlen(hex_artist), strlen(ascii_artist));
         Serial.println(ascii_artist);
 
-        for(i = l+1; i < 1024; i++)
+        for(i = l+13; i < 1024; i++)
         {
-            if (linkplay_command[i] == '&')
+            if (linkplay_command[i] == '"')
             {
                 m = i; 
                 break; 
             }
         }   
-        strncpy(hex_album, (linkplay_command + l+1), m-l); 
-        strncat(hex_album, "\0", m);
+        z = m - (l+13);
+        strncpy(hex_album, (linkplay_command + l+13), z); 
+        hex_album[z+1] = '\0';
         hex2ascii(hex_album, ascii_album, strlen(hex_album), strlen(ascii_album));
         Serial.println(ascii_album);
-        i = m = n = l = 0;
+        i = m = n = l = q = z = 0;
+    }
+}
+
+uint8_t process_mic_command(char* linkplay_command)
+{
+    switch(linkplay_command_data_extraction(linkplay_command))
+    {
+        case 0: 
+            Serial.println("Microphones turned off");
+            break;
+        default: 
+            break;
     }
 }
  
@@ -629,9 +763,8 @@ uint8_t process_ply_command(char* linkplay_command)                    // Linkpl
     switch (playback_status_int)
     {
         case e_stopped_playback:
-            Serial.println("playback started");
-            break;
-          
+            Serial.println("playback stopped");
+            break;  
         case e_playback_started:
             Serial.println("playback started");
             break;
@@ -833,84 +966,87 @@ uint8_t process_wan_command(char *linkplay_command)
     //  AXX+WAN+LST4E4554474541523137,0,1;7866696E69747977696669,0,0;726F636C6F6E65,0,1&
     //  AXX+WAN+LST5053415544494F,10,1;50534755455354,10,1;5053417564696F5850,10,1&
 
-      /*
+    /*
         "AXX+VOL+GET"                                                   // Get the current volume level
         "AXX+VOL+xxx"                                                   // WiFi module will confirm volume change by replying AXX+VOL+xxx
         "AXX+VOL+nnn"                                                   // WiFi module sends this command to request volume change,
                                                                         // where nnn is the volume (0 to 100)
     */
-
-    //  AXX+WAN+LST4E4554474541523137,0,1;7866696E69747977696669,0,0;726F636C6F6E65,0,1&
+    
     char hex_ap[100];
     char ascii_ap[100];
     
-    uint16_t c = 0; 
-    uint16_t i = 0;
-    uint16_t p = 0;
-    uint16_t m = 0;
+    uint16_t string_size = 0; 
+    uint16_t current_wan_status = 0;
+    uint16_t pos = 0;
+    uint16_t status_type = 0;
     uint8_t num_aps = 0;
-    uint16_t netwrk_srt = 11;
+    uint16_t string_begin = 11;
 
     if (linkplay_command[11] != '&')
     {
         num_aps += 1;
     }
-    
-    for (i = 12; i < 1024; i++)
+    else
     {
-        if (linkplay_command[i] == ';')
+        Serial.println("Can't find any networks");
+        return 1; 
+    }
+    
+    for (pos = 12; pos < 1024; pos++)
+    {
+        if (linkplay_command[pos] == ';')
         {
             num_aps += 1;
         }
-
-        if (linkplay_command[i] == '&')
+        else if (linkplay_command[pos] == '&')
         {
             break;
         }
     }
+    
     Serial.print("Found ");
     Serial.print(num_aps);
     Serial.println(" network(s):");   
     
-    i = 0; 
-    for ( i = 0; i < ((num_aps * 3) +1); i++)
+    for ( current_wan_status = 0; current_wan_status < (num_aps * num_status_per_wan); current_wan_status++)
     {
-        for (p = netwrk_srt; p < 1024; p++)
+        for (pos = string_begin; pos < 1024; pos++)
         {
-            c++;
-            if ((linkplay_command[p] == ',') || (linkplay_command[p] == ';') || ((linkplay_command[p] == '&')))
+            string_size++;
+            if ((linkplay_command[pos] == ',') || (linkplay_command[pos] == ';') || ((linkplay_command[pos] == '&')))
             {
                 break;
             } 
         }
         
-        strncpy(hex_ap, (linkplay_command + netwrk_srt), c-1); 
-        strncat(hex_ap, "\0", m);
+        strncpy(hex_ap, (linkplay_command + string_begin), string_size-1); 
+        strncat(hex_ap, "\0", string_size);
 
-        switch (m)
+        switch (status_type)
         {
-            case 0:
+            case e_ap_ssid:
                 hex2ascii(hex_ap, ascii_ap, strlen(hex_ap), strlen(ascii_ap));
                 Serial.print("Network: ");
                 Serial.println(ascii_ap);
                 break;
-            case 1: 
-                Serial.print("Channel: ");
+            case e_ap_rssi: 
+                Serial.print("RSSI: ");
                 Serial.println(atoi(hex_ap));
                 break;
-            case 2:
-                Serial.print("Security: ");
+            case e_ap_channel:
+                Serial.print("Channel: ");
                 Serial.println(atoi(hex_ap));
                 break;
         }
         
-        m < 2 ? m++ : (m = 0);
+        status_type < max_wan_status ? status_type++ : status_type = 0;
         memset(hex_ap, 0, 100);
         memset(ascii_ap, 0, 100);
-        netwrk_srt += c;
-        c = 0;
+        string_begin += string_size;
+        string_size = 0;
     }
-    
+    return 0;
 }
 
 uint8_t process_wps_command(char* linkplay_command)                    // Linkplay wireless WPS config commands
@@ -972,50 +1108,50 @@ uint16_t linkplay_command_data_extraction(char* linkplay_command)
 
 int16_t hex2ascii(const char *hexArray, char *asciiArray, uint8_t hexArrayLength, uint8_t charArrayLength)
 {
-        int16_t i = 0;
-        int16_t j = 0;
-        memset(asciiArray, 0, charArrayLength);
-        
-        for (i = 0; i<hexArrayLength; i+=2 )
+    int16_t i = 0;
+    int16_t j = 0;
+    memset(asciiArray, 0, charArrayLength);
+    
+    for (i = 0; i<hexArrayLength; i+=2 )
+    {
+        char val1 = hexArray[i];
+        char val2 = hexArray[i+1];
+            
+        if( val1 > 0x60) 
         {
-            char val1 = hexArray[i];
-            char val2 = hexArray[i+1];
-                
-            if( val1 > 0x60) 
-            {
-                val1 -= 0x57;
-            }
-            else if(val1 > 0x40) 
-            {
-                val1 -= 0x37;
-            }
-            else 
-            {
-                val1 -= 0x30;
-            }
-                
-            if( val2 > 0x60)
-            {
-                val2 -= 0x57;
-            }
-            else if(val2 > 0x40)
-            {
-                val2 -= 0x37;
-            }
-            else 
-            {
-                val2 -= 0x30;
-            }
-                
-            if(val1 > 15 || val2 > 15 || val1 < 0 || val2 < 0)
-            {
-                return 0;
-            }
-                        
-            asciiArray[j] = val1*16 + val2;        
-            j++;
+            val1 -= 0x57;
         }
-        return j;
+        else if(val1 > 0x40) 
+        {
+            val1 -= 0x37;
+        }
+        else 
+        {
+            val1 -= 0x30;
+        }
+            
+        if( val2 > 0x60)
+        {
+            val2 -= 0x57;
+        }
+        else if(val2 > 0x40)
+        {
+            val2 -= 0x37;
+        }
+        else 
+        {
+            val2 -= 0x30;
+        }
+            
+        if(val1 > 15 || val2 > 15 || val1 < 0 || val2 < 0)
+        {
+            return 0;
+        }
+                    
+        asciiArray[j] = val1*16 + val2;        
+        j++;
+    }
+    return j;
 }
 
 /*
@@ -1028,8 +1164,6 @@ AXX+WAN+LST&
 AXX+WAN+LST4E4554474541523137,0,1;7866696E69747977696669,0,0;726F636C6F6E65,0,1&
 AXX+STA+000
 AXX+STA+006
+
+AXX+MEA+DAT54686520536967687473;456e746572205368696b617269;54686520537061726b&
 */
-
-// AXX+MEA+DAT54686520536967687473;456e746572205368696b617269;54686520537061726b&
-
-//test

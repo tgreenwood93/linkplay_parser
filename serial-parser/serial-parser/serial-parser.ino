@@ -111,14 +111,8 @@ void checkSerial1()
         else
         {
             doneRecieving = true; 
-            //newMsg[i+1] = '\0';
+            newMsg[i+1] = '\0';
             break;
         }
     }
- 
-//    if ((tempCharLP != '\n' && doneRecieving == true) || (tempCharLP != 0x0A && doneRecieving == true))
-//    {
-//      if (i < 1023)
-//        checkSerial1();
-//    }
 }
