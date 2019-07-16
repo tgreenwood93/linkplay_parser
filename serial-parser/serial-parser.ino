@@ -9,11 +9,11 @@ static uint8_t led = 13;
 
 void setup() 
 {
-  Serial.begin(9600);
-  Serial1.begin(9600);
-  memset(newMsg, 0, 1025);
-  pinMode(led, OUTPUT);
-  Serial.println("Booting up...");
+    Serial.begin(9600);
+    Serial1.begin(9600);
+    memset(newMsg, 0, 1025);
+    pinMode(led, OUTPUT);
+    Serial.println("Booting up...");
 }
 
 void loop() {
