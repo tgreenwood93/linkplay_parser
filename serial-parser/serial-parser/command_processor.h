@@ -111,6 +111,7 @@ uint8_t process_dev_command(char* linkplay_command);                    // Linkp
 uint8_t process_eth_command(char* linkplay_command);                    // Linkplay ethernet commands
 uint8_t process_fac_command(char* linkplay_command);                    // Linkplay factory reset commands
 uint8_t process_get_command(char* linkplay_command);                    // Linkplay get commands
+uint8_t process_inf_command(char* linkplay_command);                    // Linkplay i2s commands
 uint8_t process_i2s_command(char* linkplay_command);                    // Linkplay i2s commands
 uint8_t process_led_command(char* linkplay_command);                    // Linkplay factory teset commands
 uint8_t process_mcu_command(char* linkplay_command);                    // Linkplay queries of our microprocessor
@@ -129,7 +130,6 @@ uint8_t process_sta_command(char* linkplay_command);                    // Linkp
 uint8_t process_s2m_command(char* linkplay_command);                    // Linkplay slave to master command pass through
 uint8_t process_vol_command(char* linkplay_command);                    // Linkplay volume adjusting commands
 uint8_t process_wan_command(char* linkplay_command);                    // Linkplay wireless acress points 
-
 uint8_t process_wps_command(char* linkplay_command);                    // Linkplay wireless WPS config commands
 uint8_t process_www_command(char* linkplay_command);                    // Linkplay internet connection commands
 uint16_t linkplay_command_data_extraction(char* linkplay_command);

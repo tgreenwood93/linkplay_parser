@@ -142,8 +142,11 @@ uint8_t process_g_commands(char* linkplay_command)
 uint8_t process_i_commands(char* linkplay_command)
 {
     switch (linkplay_command[5])
-    {
-         case '2':
+    { 
+        case 'I':
+            process_inf_command(linkplay_command);                    // Linkplay i2s commands
+            break;
+        case '2':
             process_i2s_command(linkplay_command);                     // Linkplay factory get commands
             break;
         default:
@@ -403,7 +406,7 @@ uint8_t process_eth_command(char* linkplay_command)                    // Linkpl
  
 uint8_t process_fac_command(char* linkplay_command)                    // Linkplay factory reset commands
 {
-    //   "AXX+FACTORY"                                                   // WiFi sends this command to notify MCU that it is going to do a factory reset
+    //   "AXX+FACTORY"                                                 // WiFi sends this command to notify MCU that it is going to do a factory reset
     Serial.println("Linkplay is factory resetting.\nWe'll need to supply it information upon it rebooting.");
 }
 
@@ -411,6 +414,25 @@ uint8_t process_get_command(char* linkplay_command)
 {
     Serial.println("Set SSID of linkplay");
     Serial1.println("MCU+SID+StellarIntegrated");
+}
+
+uint8_t process_inf_command(char* linkplay_command)                    // Linkplay inf commands
+{ /*
+        AXX+INF+INF{ "language": "en_us", "ssid": "LinkPlayA31_1CB8", "hideSSID": "1", "SSIDStrategy": "2", 
+        "firmware": "3.8.5710", "build": "release", "project": "a31srcoutwm8918", "priv_prj": "a31srcoutwm8918", 
+        "Release": "20180510", "branch": "stable\/wiimu-3.8", "group": "0", "expired": "0", "internet": "0", 
+        "uuid": "FF3100368405108353A7AD6C", "MAC": "00:22:6C:68:1C:B8", "STA_MAC": "00:22:6C:68:1C:BA", 
+        "date": "1970:01:01", "time": "00:27:42", "tz": "-7", "netstat": "0", "essid": "", "apcli0": "0.0.0.0", 
+        "eth2": "0.0.0.0", "hardware": "A31", "VersionUpdate": "0", "NewVer": "0", "mcu_ver": "0", "mcu_ver_new": "0", 
+        "dsp_ver_new": "0", "ra0": "10.10.10.254", "temp_uuid": "58F491488457B1B7", "cap1": "0x500", 
+        "capability": "0x280800", "languages": "0x0", "dsp_ver": "", "streams_all": "0x7ffffffe", "streams": "0x7f9833fe", 
+        "region": "unknown", "external": "0x0", "preset_key": "6", "plm_support": "0x2", "spotify_active": "0", 
+        "WifiChannel": "11", "RSSI": "0", "battery": "0", "battery_percent": "0", "securemode": "0", 
+        "upnp_version": "1004", "upnp_uuid": "uuid:FF31F008-8405-1083-53A7-AD6CFF31F008", "uart_pass_port": "8899", 
+        "communication_port": "8819", "web_firmware_update_hide": "0", "web_login_result": "-1", "ignore_talkstart": "0", 
+        "silenceOTATime": "", "ignore_silenceOTATime": "1", "iheartradio_new": "1", "privacy_mode": "0", 
+        "user1": "315:524", "user2": "5935:6291", "DeviceName": "Linkplay Demo", "GroupName": "Linkplay Demo" }&
+  */
 }
 
 uint8_t process_i2s_command(char* linkplay_command)
