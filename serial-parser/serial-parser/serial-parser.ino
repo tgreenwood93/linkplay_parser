@@ -4,7 +4,7 @@ void checkSerial1(void);
 void checkSerialUSB(void);
 
 char newMsgUSB[1050];
-char newMsg[1050];
+char newMsg[1600];
 char newMsgLP[1050];
 
 static bool doneRecieving = false; 
@@ -18,27 +18,14 @@ void setup()
 {
   Serial.begin(9600);
   Serial1.begin(57600);
-  memset(newMsg, 0, 1026);
+  memset(newMsg, 0, 1600);
   memset(newMsgUSB, 0, 1026);
   pinMode(led, OUTPUT);
   Serial.println("Booting up...");
 }
 
 void loop() {
-/*
-bool done_once = false; 
-char* hexana = "62616e616e610a"; 
-char asciiana[10];
-
-hex2ascii(hexana, asciiana, strlen(hexana), strlen(asciiana));
-
-if (done_once == false)
-{
-  Serial.println("test");
-  Serial.println(asciiana);
-  done_once = true; 
-}
-*/
+  
     checkSerialUSB();
     if (true == doneRecievingUSB)
     {
@@ -51,10 +38,10 @@ if (done_once == false)
     checkSerial1();
     if (true == doneRecieving)
     {
-        Serial.print(newMsg);
-        Serial.print(": ");
+        //Serial.print(newMsg);
+        //Serial.print(": ");
         processCommand(newMsg); 
-        memset(newMsg, 0, 1026);
+        memset(newMsg, 0, 1600);
         doneRecieving = false; 
         i = 0; 
     }
@@ -102,7 +89,7 @@ void checkSerial1()
         if (tempCharLP != '\n')
         {
             newMsg[i++] = tempCharLP;            
-            if (i > 1023)
+            if (i > 1600)
             {
                 newMsg[i+1] = '\0';
                 doneRecieving = true; 

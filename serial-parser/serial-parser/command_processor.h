@@ -85,6 +85,70 @@ enum {
     e_ap_channel,
  };
 
+enum {
+    e_inf_language = 0,
+    e_inf_ssid,
+    e_inf_hide_ssid,
+    e_inf_ssid_strategy,
+    e_inf_link_play_fimrware,
+    e_inf_build,                              // 5
+    e_inf_project,
+    e_inf_firmware_private_project,
+    e_inf_firmware_release,
+    e_inf_firmware_branch,
+    e_inf_group,                              // 10
+    e_inf_expired,
+    e_inf_internet,
+    e_inf_uuid,
+    e_inf_mac,
+    e_inf_sta_mac,                            // 15
+    e_inf_date,
+    e_inf_time,
+    e_inf_tz,
+    e_inf_netstat,
+    e_inf_essid,                              // 20
+    e_inf_apcli0,
+    e_inf_eth2,
+    e_inf_hardware,
+    e_inf_version_update,
+    e_inf_new_version,                        // 25
+    e_inf_mcu_version,
+    e_inf_mcu_new_version,
+    e_inf_dsp_ver_new,
+    e_inf_ra0,
+    e_inf_temp_uuid,                          // 30
+    e_inf_cap1,
+    e_inf_capability,
+    e_inf_languages,
+    e_inf_dsp_ver,
+    e_inf_streams_all,                        // 35
+    e_inf_streams,
+    e_inf_region,
+    e_inf_external,
+    e_inf_preset_key,
+    e_inf_plm_support,                        // 40
+    e_inf_spotify_active,
+    e_inf_WifiChannel,
+    e_inf_RSSI,
+    e_inf_battery,
+    e_inf_battery_percent,                    // 45
+    e_inf_securemode,
+    e_inf_upnp_version,
+    e_inf_upnp_uuid,
+    e_inf_uart_pass_port,
+    e_inf_communication_port,                 // 50
+    e_inf_web_firmware_update_hide,
+    e_inf_web_login_result,
+    e_inf_ignore_talkstart,
+    e_inf_silenceOTATime,
+    e_inf_ignore_silenceOTATime,              // 55
+    e_inf_iheartradio_new,
+    e_inf_privacy_mode,
+    e_inf_user1,
+    e_inf_user2,
+    e_inf_DeviceName,                         // 60
+    e_inf_GroupName,
+};
 void processCommand(char* msgAddr);
 uint8_t process_linkplay_commands(char* linkplay_command);
 
@@ -136,7 +200,9 @@ uint16_t linkplay_command_data_extraction(char* linkplay_command);
 void error_handler(void);
 int16_t hex2ascii(const char *hexArray, char *asciiArray, uint8_t hexArrayLength, uint8_t charArrayLength);
 
+uint8_t inf_command_parser(uint16_t current_inf, char* char_buf);
+
 static const uint8_t max_wan_status = 2; 
 static const uint8_t num_status_per_wan = 3; 
-
+static const uint8_t data_offset = 3; 
 #endif

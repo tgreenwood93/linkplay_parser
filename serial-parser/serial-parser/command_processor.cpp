@@ -1,12 +1,72 @@
 #include "Arduino.h"
 #include "command_processor.h"
 
-void processCommand(char* msgAddr)
-{       
-    if (strncmp(msgAddr, "AXX", 3) != 0)
+void processCommand(char* linkplay_command)
+{   
+    uint8_t error_handler = 0;
+        
+    if (strncmp(linkplay_command, "AXX", 3) != 0)
       return; // not a linkplay command
       
-    process_linkplay_commands(msgAddr);
+    error_handler = process_linkplay_commands(linkplay_command);
+
+    if (error_handler != 0)
+    {
+      Serial.print(linkplay_command);
+      Serial.print(" ");
+    }
+               
+    switch (error_handler)
+    {
+        case 0: 
+            //Serial.println("command read sucess");
+            break;
+        case 1:    
+            Serial.println("command was not found in first layer of filtering");
+            break;
+        case 2: 
+            Serial.println("command was not found in b commands");
+            break;
+        case 3:
+            Serial.println("command was not found in c commands");
+            break;
+        case 4: 
+            Serial.println("command was not found in d commands");
+            break;
+        case 5:
+            Serial.println("command was not found in e commands");
+            break;
+        case 6: 
+            Serial.println("command was not found in f commands");
+            break;
+        case 7:
+            Serial.println("command was not found in g commands");
+            break;
+        case 8:
+            Serial.println("command was not found in i commands");
+            break;
+        case 9: 
+            Serial.println("command was not found in l commands");
+            break;
+        case 10:
+            Serial.println("command was not found in m commands");
+            break;
+        case 11: 
+            Serial.println("command was not found in p commands");
+            break;
+        case 12:
+            Serial.println("command was not found in r commands");
+            break;
+        case 13: 
+            Serial.println("command was not found in s commands");
+            break;
+        case 14:
+            Serial.println("command was not found in v commands");
+            break;
+        case 15:
+            Serial.println("command was not found in w commands");
+            break;
+    }
 }
 
  
@@ -57,8 +117,10 @@ uint8_t process_linkplay_commands(char* linkplay_command)
             process_w_commands(linkplay_command);
             break;
         default:
+            return 1;
             break;
     }
+    return 0;
 }
  
 uint8_t process_b_commands(char* linkplay_command)
@@ -72,8 +134,10 @@ uint8_t process_b_commands(char* linkplay_command)
             process_bur_command(linkplay_command);                      // Linkplay firmware updating commands
             break;
         default:
+            return 2;
             break;
     }
+    return 0;
 }
  
 uint8_t process_c_commands(char* linkplay_command)
@@ -87,8 +151,10 @@ uint8_t process_c_commands(char* linkplay_command)
             process_chn_command(linkplay_command);                      // Linkplay channel information (stereo / mono left / mono right)
             break;
         default:
+            return 3;
             break;
-    }
+    }    
+    return 0;
 }
  
 uint8_t process_d_commands(char* linkplay_command)
@@ -99,8 +165,10 @@ uint8_t process_d_commands(char* linkplay_command)
             process_dev_command(linkplay_command);                      // Linkplay device query commands
             break;
         default:
+            return 4;
             break;  
-    }   
+    }       
+    return 0;
 }
  
 uint8_t process_e_commands(char* linkplay_command)
@@ -111,8 +179,10 @@ uint8_t process_e_commands(char* linkplay_command)
             process_eth_command(linkplay_command);                      // Linkplay ethernet commands
             break;
         default:
+            return 5;
             break;  
-    }  
+    }    
+    return 0;  
 }
  
 uint8_t process_f_commands(char* linkplay_command)
@@ -123,8 +193,10 @@ uint8_t process_f_commands(char* linkplay_command)
             process_fac_command(linkplay_command);                      // Linkplay factory reset commands
             break;
         default:
+            return 6;
             break;  
-    }  
+    }    
+    return 0;  
 }
 
 uint8_t process_g_commands(char* linkplay_command)
@@ -135,23 +207,27 @@ uint8_t process_g_commands(char* linkplay_command)
             process_get_command(linkplay_command);                     // Linkplay factory get commands
             break;
         default:
+            return 7;
             break;  
-    }  
+    }    
+    return 0;  
 }
 
 uint8_t process_i_commands(char* linkplay_command)
 {
     switch (linkplay_command[5])
     { 
-        case 'I':
+        case 'N':
             process_inf_command(linkplay_command);                    // Linkplay i2s commands
             break;
         case '2':
             process_i2s_command(linkplay_command);                     // Linkplay factory get commands
             break;
         default:
+            return 8;
             break;  
-    }
+    }    
+    return 0;
 }
 uint8_t process_l_commands(char* linkplay_command)
 {
@@ -161,8 +237,10 @@ uint8_t process_l_commands(char* linkplay_command)
             process_led_command(linkplay_command);                      // Linkplay factory reset commands
             break;
         default:
+            return 9;
             break;  
-    }  
+    }    
+    return 0;  
 }
  
 uint8_t process_m_commands(char* linkplay_command)
@@ -185,8 +263,10 @@ uint8_t process_m_commands(char* linkplay_command)
             process_m2s_command(linkplay_command);                      // Linkplay master to slave command pass through
             break;        
         default:
+            return 10;
             break;
-    }
+    }    
+    return 0;
 }
  
 uint8_t process_p_commands(char* linkplay_command)
@@ -206,8 +286,10 @@ uint8_t process_p_commands(char* linkplay_command)
             process_ply_command(linkplay_command);                      // Linkplay playback commands
             break;     
         default:
+            return 11;
             break;  
-    }
+    }    
+    return 0;
 }
  
 uint8_t process_r_commands(char* linkplay_command)
@@ -218,8 +300,10 @@ uint8_t process_r_commands(char* linkplay_command)
             process_ra0_command(linkplay_command);                      // Linkplay wifi access point information commands
             break;
         default:
+            return 12;
             break;  
-    }  
+    }    
+    return 0;  
 }
  
 uint8_t process_s_commands(char* linkplay_command)
@@ -236,8 +320,10 @@ uint8_t process_s_commands(char* linkplay_command)
             process_s2m_command(linkplay_command);                      // Linkplay slave to master command pass through
             break;  
         default:
+            return 13;
             break;
-    }
+    }    
+    return 0;
 }
  
 uint8_t process_v_commands(char* linkplay_command)
@@ -248,8 +334,10 @@ uint8_t process_v_commands(char* linkplay_command)
             process_vol_command(linkplay_command);                      // Linkplay volume adjusting commands
             break;
         default:
+            return 14;
             break;  
-    }  
+    }    
+    return 0;  
 }
  
 uint8_t process_w_commands(char* linkplay_command)
@@ -266,8 +354,10 @@ uint8_t process_w_commands(char* linkplay_command)
             process_www_command(linkplay_command);                      // Linkplay internet connection commands
             break;  
         default:
+            return 15;
             break;  
-    }
+    }    
+    return 0;
 }
 
 uint8_t process_bot_command(char* linkplay_command)                   // Linkplay firmware updating commands
@@ -417,22 +507,306 @@ uint8_t process_get_command(char* linkplay_command)
 }
 
 uint8_t process_inf_command(char* linkplay_command)                    // Linkplay inf commands
-{ /*
+{ 
+/*
         AXX+INF+INF{ "language": "en_us", "ssid": "LinkPlayA31_1CB8", "hideSSID": "1", "SSIDStrategy": "2", 
         "firmware": "3.8.5710", "build": "release", "project": "a31srcoutwm8918", "priv_prj": "a31srcoutwm8918", 
         "Release": "20180510", "branch": "stable\/wiimu-3.8", "group": "0", "expired": "0", "internet": "0", 
         "uuid": "FF3100368405108353A7AD6C", "MAC": "00:22:6C:68:1C:B8", "STA_MAC": "00:22:6C:68:1C:BA", 
-        "date": "1970:01:01", "time": "00:27:42", "tz": "-7", "netstat": "0", "essid": "", "apcli0": "0.0.0.0", 
+        "date": "1970:01:01", "time": "00:27:42", "tz": "-7", "netstat": "0", "essid": "", "apcli0": "0.0.0.0",    //22
         "eth2": "0.0.0.0", "hardware": "A31", "VersionUpdate": "0", "NewVer": "0", "mcu_ver": "0", "mcu_ver_new": "0", 
         "dsp_ver_new": "0", "ra0": "10.10.10.254", "temp_uuid": "58F491488457B1B7", "cap1": "0x500", 
-        "capability": "0x280800", "languages": "0x0", "dsp_ver": "", "streams_all": "0x7ffffffe", "streams": "0x7f9833fe", 
+        "capability": "0x280800", "languages": "0x0", "dsp_ver": "", "streams_all": "0x7ffffffe", "streams": "0x7f9833fe", //37
         "region": "unknown", "external": "0x0", "preset_key": "6", "plm_support": "0x2", "spotify_active": "0", 
         "WifiChannel": "11", "RSSI": "0", "battery": "0", "battery_percent": "0", "securemode": "0", 
         "upnp_version": "1004", "upnp_uuid": "uuid:FF31F008-8405-1083-53A7-AD6CFF31F008", "uart_pass_port": "8899", 
         "communication_port": "8819", "web_firmware_update_hide": "0", "web_login_result": "-1", "ignore_talkstart": "0", 
         "silenceOTATime": "", "ignore_silenceOTATime": "1", "iheartradio_new": "1", "privacy_mode": "0", 
         "user1": "315:524", "user2": "5935:6291", "DeviceName": "Linkplay Demo", "GroupName": "Linkplay Demo" }&
-  */
+*/  
+
+    uint16_t num_args = 1;
+    uint16_t data_start_point = 0;
+    uint16_t data_end_point = 0;
+    char char_buf[100];
+    uint16_t store_pos[100] = {0};
+    uint16_t command_length = strlen(linkplay_command);
+    
+    for (data_start_point = 12; data_start_point < command_length; data_start_point++)
+    {
+        if ((linkplay_command[data_start_point] == ':') && (linkplay_command[data_start_point-1] == '"'))
+        {
+            for (data_end_point = (data_start_point+data_offset); data_end_point < command_length; data_end_point++)
+            {     
+                if ((linkplay_command[data_end_point] == '"') && (linkplay_command[data_end_point+1] == ','))
+                {
+                    strncpy(char_buf, (linkplay_command+(data_start_point+data_offset)), (data_end_point-(data_start_point+data_offset)));
+                    inf_command_parser((num_args-1), char_buf);
+                    memset(char_buf, 0, 100);
+                    break;
+                }  
+            }
+            num_args ++;
+        }
+    }
+    return 0; 
+}
+
+uint8_t inf_command_parser(uint16_t current_inf, char* char_buf)
+{
+    switch (current_inf)
+    {
+        case e_inf_language:
+            Serial.print("language: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_ssid:
+            Serial.print("ssid: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_hide_ssid:
+            Serial.print("hide ssid: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_ssid_strategy:
+            Serial.print("ssid strategy: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_link_play_fimrware:
+            Serial.print("linkplay firmware: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_build:
+            Serial.print("linkplay build: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_project:
+            Serial.print("linkplay project: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_firmware_private_project:
+            Serial.print("linkplay private project: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_firmware_release:
+            Serial.print("linkplay firmware release: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_firmware_branch:
+            Serial.print("linkplay firmware branch: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_group:
+            Serial.print("group: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_expired:
+            Serial.print("expired: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_internet:
+            Serial.print("internet status: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_uuid:
+            Serial.print("uuid: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_mac:
+            Serial.print("mac address: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_sta_mac:
+            Serial.print("sta mac address: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_date:
+            Serial.print("date: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_time:
+            Serial.print("time: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_tz:
+            Serial.print("time zone: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_netstat:
+            Serial.print("network status: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_essid:
+            Serial.print("essid: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_apcli0:
+            Serial.print("wifi IP: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_eth2:
+            Serial.print("ethernet IP: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_hardware:
+            Serial.print("hardware: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_version_update:
+            Serial.print("version update: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_new_version:
+            Serial.print("new linkplay firmware version: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_mcu_version:
+            Serial.print("pic firmware version: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_mcu_new_version:
+            Serial.print("pic new firmware version: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_dsp_ver_new:
+            Serial.print("dsp new firmware version: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_ra0:
+            Serial.print("internal server IP: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_temp_uuid:
+            Serial.print("temp uuid: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_cap1:
+            Serial.print("capl: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_capability:
+            Serial.print("capability: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_languages:
+            Serial.print("language: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_dsp_ver:
+            Serial.print("dsp version: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_streams_all:
+            Serial.print("steaming settings: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_streams:
+            Serial.print("streams: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_region:
+            Serial.print("region: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_external:
+            Serial.print("external: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_preset_key:
+            Serial.print("preset key: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_plm_support:
+            Serial.print("plm support: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_spotify_active:
+            Serial.print("spotify active: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_WifiChannel:
+            Serial.print("wifi channel: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_RSSI:
+            Serial.print("rssi: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_battery:
+            Serial.print("battery: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_battery_percent:
+            Serial.print("battery percent: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_securemode:
+            Serial.print("secure mode: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_upnp_version:
+            Serial.print("upnp version: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_upnp_uuid:
+            Serial.print("upnp uuid: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_uart_pass_port:
+            Serial.print("pass port: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_communication_port:
+            Serial.print("communication port: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_web_firmware_update_hide:
+            Serial.print("firmware update hidden: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_web_login_result:
+            Serial.print("web login result: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_ignore_talkstart:
+            Serial.print("ignore talk start: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_silenceOTATime:
+            Serial.print("silence OTA time: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_ignore_silenceOTATime:
+            Serial.print("ignore silence OTA time: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_iheartradio_new:
+            Serial.print("iHeartRadio new: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_privacy_mode:
+            Serial.print("privacy mode: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_user1:
+            Serial.print("user1: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_user2:
+            Serial.print("user2: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_DeviceName:
+            Serial.print("device name: ");
+            Serial.println(char_buf);
+            break;
+        case e_inf_GroupName:
+            Serial.print("group name: ");
+            Serial.println(char_buf);
+            break;
+        default:
+            break; 
+    }
 }
 
 uint8_t process_i2s_command(char* linkplay_command)
@@ -572,6 +946,7 @@ uint8_t process_mea_command(char* linkplay_command)                    // Linkpl
         strncpy(hex_title, (linkplay_command + 23), n-23);
         hex_title[n-22] = '\0';
         hex2ascii(hex_title, ascii_title, strlen(hex_title), strlen(ascii_title));
+        Serial.print("Title: ");
         Serial.println(ascii_title);
 
         for(i = (n+14); i < 1024; i++)
@@ -586,6 +961,7 @@ uint8_t process_mea_command(char* linkplay_command)                    // Linkpl
         strncpy(hex_artist, (linkplay_command + (n+14)), q);
         hex_artist[q+1] = '\0';
         hex2ascii(hex_artist, ascii_artist, strlen(hex_artist), strlen(ascii_artist));
+        Serial.print("Artist: ");
         Serial.println(ascii_artist);
 
         for(i = l+13; i < 1024; i++)
@@ -600,6 +976,7 @@ uint8_t process_mea_command(char* linkplay_command)                    // Linkpl
         strncpy(hex_album, (linkplay_command + l+13), z); 
         hex_album[z+1] = '\0';
         hex2ascii(hex_album, ascii_album, strlen(hex_album), strlen(ascii_album));
+        Serial.print("Album: ");
         Serial.println(ascii_album);
         i = m = n = l = q = z = 0;
     }
@@ -1130,6 +1507,7 @@ uint8_t process_www_command(char* linkplay_command)                    // Linkpl
           break;
       case e_connected_to_internet:
           Serial.println("connected to the internet!");
+          Serial1.println("MCU+INF+GET");
           break;   
       default: 
           break;
@@ -1146,11 +1524,11 @@ uint16_t linkplay_command_data_extraction(char* linkplay_command)
     return(atoi(status_str));
 }
 
-int16_t hex2ascii(const char *hexArray, char *asciiArray, uint8_t hexArrayLength, uint8_t charArrayLength)
+int16_t hex2ascii(const char *hexArray, char *asciiArray, uint8_t hexArrayLength, uint8_t asciiArrayLength)
 {
     int16_t i = 0;
     int16_t j = 0;
-    memset(asciiArray, 0, charArrayLength);
+    memset(asciiArray, 0, asciiArrayLength);
     
     for (i = 0; i<hexArrayLength; i+=2 )
     {
