@@ -557,9 +557,15 @@ uint8_t process_fac_command(char* linkplay_command)                    // Linkpl
 
 uint8_t process_get_command(char* linkplay_command)
 {
-    Serial.println("Set SSID of linkplay");
-    Serial1.println("MCU+SID+StellarIntegrated");
-    return e_no_error;
+
+    if (strncmp((linkplay_command + 8), "ORY", 3) == 0)
+    {    
+        Serial.println("Set SSID of linkplay");
+        Serial1.println("MCU+SID+StellarIntegrated");
+        return e_no_error;
+    }
+
+    return e_unknown_get_command; 
 }
 
 uint8_t process_inf_command(char* linkplay_command)                    // Linkplay inf commands
@@ -584,27 +590,31 @@ uint8_t process_inf_command(char* linkplay_command)                    // Linkpl
     uint16_t num_args = 1;
     uint16_t data_start_point = 0;
     uint16_t data_end_point = 0;
-    char char_buf[100];
+    char char_buf[100];    
     uint16_t command_length = strlen(linkplay_command);
-    
-    for (data_start_point = 12; data_start_point < command_length; data_start_point++)
-    {
-        if ((linkplay_command[data_start_point] == ':') && (linkplay_command[data_start_point-1] == '"'))
+
+    if (strncmp((linkplay_command + 8), "INF", 3) == 0)
+    {  
+        for (data_start_point = 12; data_start_point < command_length; data_start_point++)
         {
-            for (data_end_point = (data_start_point+data_offset); data_end_point < command_length; data_end_point++)
-            {     
-                if ((linkplay_command[data_end_point] == '"') && (linkplay_command[data_end_point+1] == ','))
-                {
-                    strncpy(char_buf, (linkplay_command+(data_start_point+data_offset)), (data_end_point-(data_start_point+data_offset)));
-                    inf_command_parser((num_args-1), char_buf);
-                    memset(char_buf, 0, 100);
-                    break;
-                }  
+            if ((linkplay_command[data_start_point] == ':') && (linkplay_command[data_start_point-1] == '"'))
+            {
+                for (data_end_point = (data_start_point+data_offset); data_end_point < command_length; data_end_point++)
+                {     
+                    if ((linkplay_command[data_end_point] == '"') && (linkplay_command[data_end_point+1] == ','))
+                    {
+                        strncpy(char_buf, (linkplay_command+(data_start_point+data_offset)), (data_end_point-(data_start_point+data_offset)));
+                        inf_command_parser((num_args-1), char_buf);
+                        memset(char_buf, 0, 100);
+                        break;
+                    }  
+                }
+                num_args ++;
             }
-            num_args ++;
         }
+        return e_no_error; 
     }
-    return e_no_error; 
+    return e_unknown_inf_command; 
 }
 
 uint8_t inf_command_parser(uint16_t current_inf, char* char_buf)
@@ -874,62 +884,68 @@ uint8_t process_i2s_command(char* linkplay_command)
     uint16_t i = 0; 
     uint16_t off_set = 11; 
     
-    if (linkplay_command[11] == '&')
-    {
-        return 1;  
-    }
-  
-    for (i = off_set; i < strlen(linkplay_command); i++)
-    {
-        sample_rate_chars++; 
-        if ((linkplay_command[i] == '_') || (linkplay_command[i] == '&'))
+    
+    if (strncmp((linkplay_command + 8), "INF", 3) == 0)
+    {  
+        if (linkplay_command[11] == '&')
         {
-            break; 
+            return e_empty_i2s_command;  
         }
-    }
- 
-        strncpy(c_sample_rate,linkplay_command+11, sample_rate_chars);
-        switch(atoi(c_sample_rate))
+      
+        for (i = off_set; i < strlen(linkplay_command); i++)
         {
-            case 44100:
-                Serial.println("44.1 k");
-                break;
-            case 48000:
-                Serial.println("48 k");
-                break;
-            case 88200:
-                Serial.println("88.2 k");
-                break;
-            case 96000:
-                Serial.println("96 k");
-                break;
-            case 176400:
-                Serial.println("176.4 k");
-                break;
-            case 192000:
-                Serial.println("192.2 k");
-                break;
+            sample_rate_chars++; 
+            if ((linkplay_command[i] == '_') || (linkplay_command[i] == '&'))
+            {
+                break; 
+            }
         }
-
-        strncpy(c_bit_depth,linkplay_command+(11+sample_rate_chars), 2);
-        Serial.print(atoi(c_bit_depth));
-        Serial.println(" bit");
-        return e_no_error;
+     
+            strncpy(c_sample_rate,linkplay_command+11, sample_rate_chars);
+            switch(atoi(c_sample_rate))
+            {
+                case 44100:
+                    Serial.println("44.1 k");
+                    break;
+                case 48000:
+                    Serial.println("48 k");
+                    break;
+                case 88200:
+                    Serial.println("88.2 k");
+                    break;
+                case 96000:
+                    Serial.println("96 k");
+                    break;
+                case 176400:
+                    Serial.println("176.4 k");
+                    break;
+                case 192000:
+                    Serial.println("192.2 k");
+                    break;
+            }
+    
+            strncpy(c_bit_depth,linkplay_command+(11+sample_rate_chars), 2);
+            Serial.print(atoi(c_bit_depth));
+            Serial.println(" bit");
+            return e_no_error;
+    }
+    return e_unknown_i2s_command; 
 }
 
 uint8_t process_key_command(char* linkplay_command)
 {
-  
+
+    return e_unknown_key_command; 
 }
 
-uint8_t process_led_command(char* linkplay_command)                    // Linkplay factory teset commands
+uint8_t process_led_command(char* linkplay_command)                     // Linkplay factory teset commands
 {
-      //  "AXX+LED+TES"                                                   // Notify MCU that the module is in factory test mode
-      Serial.println("Linkplay is in test mode. flashing LEDs (not hooked up)");
-      return e_no_error;
+    //  "AXX+LED+TES"                                                   // Notify MCU that the module is in factory test mode
+    Serial.println("Linkplay is in test mode. flashing LEDs (not hooked up)");
+    return e_no_error;
 }
  
-uint8_t process_mcu_command(char* linkplay_command)                    // Linkplay queries of our microprocessor
+uint8_t process_mcu_command(char* linkplay_command)                     // Linkplay queries of our microprocessor
 {
     /*  
         "AXX+MCU+VER"                                                   // command to check MCU frimware version"
@@ -945,16 +961,20 @@ uint8_t process_mcu_command(char* linkplay_command)                    // Linkpl
                                                                         // '0' -> "00"
                                                                         // '+' -> "03
     */
+        
     if (strncmp((linkplay_command + 8), "RDY", 3) == 0)
     {
         Serial.println("Linkplay is ready for communication!");
+        return e_no_error;
     }
     else if (strncmp((linkplay_command + 8), "VER", 3) == 0)
     {
         Serial.println("Send PIC firmware version ex: 0119");;
         Serial1.println("MCU+VER+0119&");
+        return e_no_error;
     }
-    return e_no_error;
+    
+    return e_unknown_mcu_command;
 }
  
 uint8_t process_mea_command(char* linkplay_command)                    // Linkplay meadia metadata commands
@@ -992,8 +1012,9 @@ uint8_t process_mea_command(char* linkplay_command)                    // Linkpl
     {
         Serial.println("media is ready!");
         Serial1.write("MCU+MEA+GET");
+        return e_no_error; 
     }
-    else
+    else if (strncmp((linkplay_command + 8), "DAT", 3) == 0)
     {
         for(title_char_counter = title_offset; title_char_counter <= strlen(linkplay_command); title_char_counter++)
         {
@@ -1027,21 +1048,28 @@ uint8_t process_mea_command(char* linkplay_command)                    // Linkpl
         strncpy(hex_album, (linkplay_command + (artist_char_counter+album_offset)), (album_char_counter - (artist_char_counter+album_offset))); 
         hex2ascii(hex_album, ascii_album, strlen(hex_album), strlen(ascii_album));
         Serial.print("Album: "); Serial.println(ascii_album);
+        return e_no_error; 
     }
-    return e_no_error;
+    else
+    {
+        return e_unknown_mea_command;
+    }
 }
 
 uint8_t process_mic_command(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error; 
+    
     switch(linkplay_command_data_extraction(linkplay_command))
     {
         case 0: 
             Serial.println("Microphones turned off");
             break;
         default: 
+            error_handler =  e_unknown_mic_command; 
             break;
     }
-    return e_no_error;
+    return error_handler;
 }
  
 uint8_t process_mut_command(char* linkplay_command)                    // Linkplay command to mute audio
@@ -1050,11 +1078,9 @@ uint8_t process_mut_command(char* linkplay_command)                    // Linkpl
         "AXX+MUT+000"                                                   // WiFi sends this command to request MCU to unmute the spekaer
         "AXX+MUT+001"                                                   // WiFi sends this command to request MCU to mute the speaker
     */
-    uint16_t mute_status = 0;
- 
-    mute_status = linkplay_command_data_extraction(linkplay_command);
-
-    switch(mute_status)
+    uint8_t error_handler = e_no_error; 
+    
+    switch(linkplay_command_data_extraction(linkplay_command))
     {
         case e_unmute:
             Serial.println("mute output");
@@ -1063,35 +1089,32 @@ uint8_t process_mut_command(char* linkplay_command)                    // Linkpl
             Serial.println("unmute output");
             break; 
         default:
+            error_handler = e_unknown_mut_command; 
             break;  
     }
-    return e_no_error;
+    return error_handler;
 }
  
 uint8_t process_m2s_command(char* linkplay_command)                    // Linkplay master to slave command pass through
 {
        // "AXX+M2S+nnn"                                                // When a pass-through session starts, slave speakers will receive AXX+M2S+nnn
-       return e_no_error;
+       return e_unknown_m2s_command;
 }
 
 uint8_t process_nxt_command(char* linkplay_command)                    // Linkplay alarm commands
 {
+    // Not supporting alarm commands
+    
     uint16_t i = 0; 
     uint16_t num_chars = 0; 
     
     if (linkplay_command[11] == '-')
     {
-        Serial.println("Linkplay alarm feature is disabled");  
+        Serial.println("Linkplay alarm feature is disabled");
+        return e_no_error; 
     }
-    for (i = 11; i < 1024; i++)
-    {
-        if (linkplay_command[i] == '&')
-        {
-            num_chars = (i - 1);
-            break; 
-        }    
-    }
-    return e_no_error;
+    
+    return e_unknown_nxt_command;   
 }
 
 uint8_t process_plm_command(char* linkplay_command)                    // Linkplay playback mode commands
@@ -1116,49 +1139,55 @@ uint8_t process_plm_command(char* linkplay_command)                    // Linkpl
                                                                         // 099 - Slave
     */
  
-    uint16_t playback_mode_status = 0;
- 
-    playback_mode_status = linkplay_command_data_extraction(linkplay_command);
- 
-    switch(playback_mode_status)   
+    uint8_t error_handler = e_no_error;
+    
+    if (strncmp((linkplay_command + 8), "GET", 3) == 0)
     {
-        case e_none:
-            Serial.println("no Linkplay input selected");
-            break;
-        case e_airplay:
-            Serial.println("Airplay input selected");
-            break;
-        case e_DLNA:
-            Serial.println("DLNA input selected");
-            break;
-        case e_thumb_drive:
-            Serial.println("thumb drive input selected");
-            break;
-        case e_line_in:
-            Serial.println("line-in input selected");
-            break;
-        case e_bluetooth:
-            Serial.println("bluetooth input selected");
-            break;
-        case e_optical:
-            Serial.println("optical input selected");
-            break;
-        case e_rca:
-            Serial.println("rca input selected");
-            break;
-        case e_coaxial:
-            Serial.println("coaxial Linkplay input selected");
-            break;
-        case e_mirror:
-            Serial.println("mirror input selected");
-            break;
-        case e_slave:
-            Serial.println("slave input selected");
-            break;
-        default:
-            return 1;
+        Serial.println("Get PICs linkplay input selection");
     }
-    return e_no_error;
+    else
+    {
+        switch(linkplay_command_data_extraction(linkplay_command))   
+        {
+            case e_none:
+                Serial.println("no Linkplay input selected");
+                break;
+            case e_airplay:
+                Serial.println("Airplay input selected");
+                break;
+            case e_DLNA:
+                Serial.println("DLNA input selected");
+                break;
+            case e_thumb_drive:
+                Serial.println("thumb drive input selected");
+                break;
+            case e_line_in:
+                Serial.println("line-in input selected");
+                break;
+            case e_bluetooth:
+                Serial.println("bluetooth input selected");
+                break;
+            case e_optical:
+                Serial.println("optical input selected");
+                break;
+            case e_rca:
+                Serial.println("rca input selected");
+                break;
+            case e_coaxial:
+                Serial.println("coaxial Linkplay input selected");
+                break;
+            case e_mirror:
+                Serial.println("mirror input selected");
+                break;
+            case e_slave:
+                Serial.println("slave input selected");
+                break;
+            default:
+                error_handler = e_unknown_plm_command;
+                break; 
+        }
+    }
+    return error_handler;
 }
  
 uint8_t process_plp_command(char* linkplay_command)                    // Linkplay repeat mode commands
@@ -1173,11 +1202,9 @@ uint8_t process_plp_command(char* linkplay_command)                    // Linkpl
     */
     // spotify doesn't trigger these messages. 
     
-    uint16_t repeat_status = 0;
+    uint8_t error_handler = e_no_error;
 
-    repeat_status = linkplay_command_data_extraction(linkplay_command);
-
-    switch (repeat_status)
+    switch (linkplay_command_data_extraction(linkplay_command))
     {
         case e_repeat_all:
             Serial.print("repeat all songs");
@@ -1192,9 +1219,10 @@ uint8_t process_plp_command(char* linkplay_command)                    // Linkpl
             Serial.print("shuffle, no repeat");
             break;  
         default:
+            error_handler = e_unknown_plp_command; 
             break;
     }
-    return e_no_error;
+    return error_handler;
 }
  
 uint8_t process_ply_command(char* linkplay_command)                    // Linkplay playback commands
@@ -1208,6 +1236,7 @@ uint8_t process_ply_command(char* linkplay_command)                    // Linkpl
   
     char playback_time[50];
     uint16_t i = 0; 
+    uint8_t error_handler = e_no_error; 
     
     if (strncmp((linkplay_command + 8), "POS", 3) == 0)
     {
@@ -1225,7 +1254,7 @@ uint8_t process_ply_command(char* linkplay_command)                    // Linkpl
             Serial.println(atoi(playback_time));
         }
     }
-    else
+    else if (linkplay_command[11] == '0')
     {
         switch (linkplay_command_data_extraction(linkplay_command))
         {
@@ -1235,9 +1264,15 @@ uint8_t process_ply_command(char* linkplay_command)                    // Linkpl
             case e_playback_started:
                 Serial.println("playback started");
                 break;
+            default: 
+                error_handler = e_unknown_playback_status; 
         }
     }
-    return e_no_error;
+    else 
+    {
+        error_handler = e_unknown_ply_command;
+    }
+    return error_handler;
 }
 uint8_t process_pmt_command(char* linkplay_command)                    // Linkplay voice prompt commands
 {
@@ -1839,6 +1874,8 @@ void linkplay_error_handler(uint8_t error_handler, char* linkplay_command)
             Serial.println("command was not found in www commands");
             break;
         case e_unknown_chan_config:
-            break; 
+            break;
+        case e_unknown_playback_status:
+            break;
     }
 }

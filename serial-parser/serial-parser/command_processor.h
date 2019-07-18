@@ -272,6 +272,9 @@ enum
   e_unknown_wps_command,
   e_unknown_www_command,
   e_unknown_chan_config,
+  e_empty_i2s_command,
+  e_unknown_playback_status,
+  
 };
 
 #endif
