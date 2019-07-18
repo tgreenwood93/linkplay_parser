@@ -3,6 +3,13 @@
 #ifndef command_processor_h
 #define command_processor_h
 
+static const uint8_t max_wan_status = 2; 
+static const uint8_t num_status_per_wan = 3; 
+static const uint8_t data_offset = 3; 
+static const uint8_t title_offset = 23; 
+static const uint8_t artist_offset = 14; 
+static const uint8_t album_offset = 13; 
+static const uint8_t no_error  = 0; 
 
 enum 
 {
@@ -75,8 +82,8 @@ enum {
 
 
 enum {
-    e_mute = 0,
-    e_unmute
+    e_unmute = 0,
+    e_mute
 };
 
 enum {
@@ -149,6 +156,7 @@ enum {
     e_inf_DeviceName,                         // 60
     e_inf_GroupName,
 };
+
 void processCommand(char* msgAddr);
 uint8_t process_linkplay_commands(char* linkplay_command);
 
@@ -159,11 +167,14 @@ uint8_t process_e_commands(char* linkplay_command);
 uint8_t process_f_commands(char* linkplay_command);
 uint8_t process_g_commands(char* linkplay_command);
 uint8_t process_i_commands(char* linkplay_command);
+uint8_t process_k_commands(char* linkplay_command);
 uint8_t process_l_commands(char* linkplay_command);
 uint8_t process_m_commands(char* linkplay_command);
+uint8_t process_n_commands(char* linkplay_command);
 uint8_t process_p_commands(char* linkplay_command);
 uint8_t process_r_commands(char* linkplay_command);
 uint8_t process_s_commands(char* linkplay_command);
+uint8_t process_v_commands(char* linkplay_command);
 uint8_t process_v_commands(char* linkplay_command);
 uint8_t process_w_commands(char* linkplay_command);
 
@@ -177,10 +188,11 @@ uint8_t process_fac_command(char* linkplay_command);                    // Linkp
 uint8_t process_get_command(char* linkplay_command);                    // Linkplay get commands
 uint8_t process_inf_command(char* linkplay_command);                    // Linkplay i2s commands
 uint8_t process_i2s_command(char* linkplay_command);                    // Linkplay i2s commands
+uint8_t process_key_command(char* linkplay_command);                    // Linkplay key (button press) commands
 uint8_t process_led_command(char* linkplay_command);                    // Linkplay factory teset commands
 uint8_t process_mcu_command(char* linkplay_command);                    // Linkplay queries of our microprocessor
 uint8_t process_mea_command(char* linkplay_command);                    // Linkplay meadia metadata commands
-uint8_t process_mic_command(char* linkplay_command);                    // process microphone commands
+uint8_t process_mic_command(char* linkplay_command);                    // Linkplay process microphone commands
 uint8_t process_mut_command(char* linkplay_command);                    // Linkplay command to mute audio
 uint8_t process_m2s_command(char* linkplay_command);                    // Linkplay master to slave command pass through
 uint8_t process_nxt_command(char* linkplay_command);                    // Linkplay alarm commands
@@ -188,10 +200,13 @@ uint8_t process_plm_command(char* linkplay_command);                    // Linkp
 uint8_t process_plp_command(char* linkplay_command);                    // Linkplay repeat mode commands
 uint8_t process_ply_command(char* linkplay_command);                    // Linkplay playback commands
 uint8_t process_pmt_command(char* linkplay_command);                    // Linkplay voice prompt commands
+uint8_t process_pow_command(char* linkplay_command);                    // Linkplay power commands
 uint8_t process_ra0_command(char* linkplay_command);                    // Linkplay wifi access point information commands
 uint8_t process_set_command(char* linkplay_command);                    // Linkplay set time change commands (YYYYMMDDHHMMSS and mon/tue/wed/.../sun)
+uint8_t process_sli_command(char* linkplay_command);
 uint8_t process_sta_command(char* linkplay_command);                    // Linkplay wireless status commands
 uint8_t process_s2m_command(char* linkplay_command);                    // Linkplay slave to master command pass through
+uint8_t process_uid_command(char* linkplay_command);                    // Linkplay uuid commands
 uint8_t process_vol_command(char* linkplay_command);                    // Linkplay volume adjusting commands
 uint8_t process_wan_command(char* linkplay_command);                    // Linkplay wireless acress points 
 uint8_t process_wps_command(char* linkplay_command);                    // Linkplay wireless WPS config commands
@@ -201,8 +216,62 @@ void error_handler(void);
 int16_t hex2ascii(const char *hexArray, char *asciiArray, uint8_t hexArrayLength, uint8_t charArrayLength);
 
 uint8_t inf_command_parser(uint16_t current_inf, char* char_buf);
+void linkplay_error_handler(uint8_t error_handler, char* linkplay_command);
+enum 
+{
+  e_no_error = 0,
+  e_unknown_AXX_command,
+  e_unknown_command,
+  e_unknown_b_command,
+  e_unknown_c_command,
+  e_unknown_d_command,
+  e_unknown_e_command,
+  e_unknown_f_command,
+  e_unknown_g_command,
+  e_unknown_i_command,
+  e_unknown_k_command,
+  e_unknown_l_command,
+  e_unknown_m_command,
+  e_unknown_n_command,
+  e_unknown_p_command,
+  e_unknown_r_command,
+  e_unknown_s_command,
+  e_unknown_v_command,
+  e_unknown_w_command,
+  e_unknown_bot_command,
+  e_unknown_bur_command,
+  e_unknown_cap_command,
+  e_unknown_chn_command,
+  e_unknown_dev_command,
+  e_unknown_eth_command,
+  e_unknown_fac_command,
+  e_unknown_get_command,
+  e_unknown_inf_command,
+  e_unknown_i2s_command,
+  e_unknown_key_command,
+  e_unknown_led_command,
+  e_unknown_mcu_command,
+  e_unknown_mea_command,
+  e_unknown_mic_command,
+  e_unknown_mut_command,
+  e_unknown_m2s_command,
+  e_unknown_nxt_command,
+  e_unknown_plm_command,
+  e_unknown_plp_command,
+  e_unknown_ply_command,
+  e_unknown_pmt_command,
+  e_unknown_pow_command,
+  e_unknown_ra0_command,
+  e_unknown_set_command,
+  e_unknown_sli_command,
+  e_unknown_sta_command,
+  e_unknown_s2m_command,
+  e_unknown_uid_command,
+  e_unknown_vol_command,
+  e_unknown_wan_command,
+  e_unknown_wps_command,
+  e_unknown_www_command,
+  e_unknown_chan_config,
+};
 
-static const uint8_t max_wan_status = 2; 
-static const uint8_t num_status_per_wan = 3; 
-static const uint8_t data_offset = 3; 
 #endif

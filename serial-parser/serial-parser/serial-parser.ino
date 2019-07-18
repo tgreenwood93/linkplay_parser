@@ -38,8 +38,7 @@ void loop() {
     checkSerial1();
     if (true == doneRecieving)
     {
-        //Serial.print(newMsg);
-        //Serial.print(": ");
+        //Serial.println(newMsg);
         processCommand(newMsg); 
         memset(newMsg, 0, 1600);
         doneRecieving = false; 
@@ -86,15 +85,19 @@ void checkSerial1()
     {
         
         tempCharLP = Serial1.read();
-        if (tempCharLP != '\n')
+        if ((tempCharLP != '\n'))
         {
             newMsg[i++] = tempCharLP;            
-            if (i > 1600)
+            if (i > 1598)
             {
-                newMsg[i+1] = '\0';
                 doneRecieving = true; 
                 break;
             } 
+            if (tempCharLP == '&')
+            {
+                doneRecieving = true; 
+                break;
+            }
         }
         else
         {

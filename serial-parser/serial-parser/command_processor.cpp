@@ -3,361 +3,384 @@
 
 void processCommand(char* linkplay_command)
 {   
-    uint8_t error_handler = 0;
+    uint8_t error_handler = e_no_error;
         
     if (strncmp(linkplay_command, "AXX", 3) != 0)
-      return; // not a linkplay command
-      
-    error_handler = process_linkplay_commands(linkplay_command);
-
-    if (error_handler != 0)
     {
-      Serial.print(linkplay_command);
-      Serial.print(" ");
+        error_handler = e_unknown_AXX_command;
     }
-               
-    switch (error_handler)
-    {
-        case 0: 
-            //Serial.println("command read sucess");
-            break;
-        case 1:    
-            Serial.println("command was not found in first layer of filtering");
-            break;
-        case 2: 
-            Serial.println("command was not found in b commands");
-            break;
-        case 3:
-            Serial.println("command was not found in c commands");
-            break;
-        case 4: 
-            Serial.println("command was not found in d commands");
-            break;
-        case 5:
-            Serial.println("command was not found in e commands");
-            break;
-        case 6: 
-            Serial.println("command was not found in f commands");
-            break;
-        case 7:
-            Serial.println("command was not found in g commands");
-            break;
-        case 8:
-            Serial.println("command was not found in i commands");
-            break;
-        case 9: 
-            Serial.println("command was not found in l commands");
-            break;
-        case 10:
-            Serial.println("command was not found in m commands");
-            break;
-        case 11: 
-            Serial.println("command was not found in p commands");
-            break;
-        case 12:
-            Serial.println("command was not found in r commands");
-            break;
-        case 13: 
-            Serial.println("command was not found in s commands");
-            break;
-        case 14:
-            Serial.println("command was not found in v commands");
-            break;
-        case 15:
-            Serial.println("command was not found in w commands");
-            break;
+    else
+    {  
+        error_handler = process_linkplay_commands(linkplay_command);
     }
+    
+    linkplay_error_handler(error_handler, linkplay_command);
 }
 
  
 uint8_t process_linkplay_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error; 
+    
     switch (linkplay_command[4])
     {
         case 'B':
-            process_b_commands(linkplay_command);
+            error_handler = process_b_commands(linkplay_command);
             break;
         case 'C':
-            process_c_commands(linkplay_command);
+            error_handler = process_c_commands(linkplay_command);
             break;
         case 'D':
-            process_d_commands(linkplay_command);
+            error_handler = process_d_commands(linkplay_command);
             break;
         case 'E':
-            process_e_commands(linkplay_command);
+            error_handler = process_e_commands(linkplay_command);
             break;
         case 'F':
-            process_f_commands(linkplay_command);
+            error_handler = process_f_commands(linkplay_command);
             break;
         case 'G':
-            process_g_commands(linkplay_command);
+            error_handler = process_g_commands(linkplay_command);
             break;
         case 'I':
-            process_i_commands(linkplay_command);
+            error_handler = process_i_commands(linkplay_command);
+            break;
+        case 'K':
+            error_handler = process_k_commands(linkplay_command);
             break;
         case 'L':
-            process_l_commands(linkplay_command);
+            error_handler = process_l_commands(linkplay_command);
             break;
         case 'M':
-            process_m_commands(linkplay_command);
+            error_handler = process_m_commands(linkplay_command);
+            break;
+        case 'N':
+            error_handler = process_n_commands(linkplay_command);
             break;
         case 'P':
-            process_p_commands(linkplay_command);
+            error_handler = process_p_commands(linkplay_command);
             break; 
         case 'R':
-            process_r_commands(linkplay_command);
+            error_handler = process_r_commands(linkplay_command);
             break;
         case 'S':
-            process_s_commands(linkplay_command);
+            error_handler = process_s_commands(linkplay_command);
+            break;
+        case 'U':
+            error_handler = process_v_commands(linkplay_command);
             break;
         case 'V':
-            process_v_commands(linkplay_command);
+            error_handler = process_v_commands(linkplay_command);
             break;
         case 'W':
-            process_w_commands(linkplay_command);
+            error_handler = process_w_commands(linkplay_command);
             break;
         default:
-            return 1;
+            error_handler =  e_unknown_command;
             break;
     }
-    return 0;
+    return error_handler; 
 }
  
 uint8_t process_b_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error; 
+    
     switch (linkplay_command[5])
     {
         case 'O':
-            process_bot_command(linkplay_command);                      // Linkplay boot commnads
+            error_handler = process_bot_command(linkplay_command);                      // Linkplay boot commnads
             break;
         case 'U':
-            process_bur_command(linkplay_command);                      // Linkplay firmware updating commands
+            error_handler = process_bur_command(linkplay_command);                      // Linkplay firmware updating commands
             break;
         default:
-            return 2;
+            error_handler =  e_unknown_b_command;
             break;
     }
-    return 0;
+    return error_handler;     
 }
  
 uint8_t process_c_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error; 
+    
     switch (linkplay_command[5])
     {
         case 'A':
-            process_cap_command(linkplay_command);                      // Linkplay commands after factory reset
+            error_handler = process_cap_command(linkplay_command);                      // Linkplay commands after factory reset
             break;
         case 'H':
-            process_chn_command(linkplay_command);                      // Linkplay channel information (stereo / mono left / mono right)
+            error_handler = process_chn_command(linkplay_command);                      // Linkplay channel information (stereo / mono left / mono right)
             break;
         default:
-            return 3;
+            error_handler =  e_unknown_c_command;
             break;
     }    
-    return 0;
+    return error_handler; 
 }
  
 uint8_t process_d_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error;
+     
     switch (linkplay_command[5])
     {
         case 'E':
-            process_dev_command(linkplay_command);                      // Linkplay device query commands
+            error_handler = process_dev_command(linkplay_command);                      // Linkplay device query commands
             break;
         default:
-            return 4;
+            error_handler =  e_unknown_d_command;
             break;  
     }       
-    return 0;
+    return error_handler; 
 }
  
 uint8_t process_e_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error;
+     
     switch (linkplay_command[5])
     {
         case 'T':
-            process_eth_command(linkplay_command);                      // Linkplay ethernet commands
+            error_handler = process_eth_command(linkplay_command);                      // Linkplay ethernet commands
             break;
         default:
-            return 5;
+            error_handler =  e_unknown_e_command;
             break;  
     }    
-    return 0;  
+    return error_handler; 
 }
  
 uint8_t process_f_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error; 
+    
     switch (linkplay_command[5])
     {
         case 'A':
-            process_fac_command(linkplay_command);                      // Linkplay factory reset commands
+            error_handler = process_fac_command(linkplay_command);                      // Linkplay factory reset commands
             break;
         default:
-            return 6;
+            error_handler =  e_unknown_f_command;
             break;  
     }    
-    return 0;  
+    return error_handler; 
 }
 
 uint8_t process_g_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error; 
+    
     switch (linkplay_command[5])
     {
         case 'E':
-            process_get_command(linkplay_command);                     // Linkplay factory get commands
+            error_handler = process_get_command(linkplay_command);                     // Linkplay factory get commands
             break;
         default:
-            return 7;
+            error_handler =  e_unknown_g_command;
             break;  
     }    
-    return 0;  
+    return error_handler; 
 }
 
 uint8_t process_i_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error; 
+    
     switch (linkplay_command[5])
     { 
         case 'N':
-            process_inf_command(linkplay_command);                    // Linkplay i2s commands
+            error_handler = process_inf_command(linkplay_command);                    // Linkplay i2s commands
             break;
         case '2':
-            process_i2s_command(linkplay_command);                     // Linkplay factory get commands
+            error_handler = process_i2s_command(linkplay_command);                     // Linkplay factory get commands
             break;
         default:
-            return 8;
+            error_handler =  e_unknown_i_command;
             break;  
     }    
-    return 0;
+    return error_handler; 
 }
+
+uint8_t process_k_commands(char* linkplay_command)
+{
+    uint8_t error_handler = e_no_error; 
+    
+    switch (linkplay_command[5])
+    { 
+        case 'E':
+            error_handler = process_key_command(linkplay_command);                     // Linkplay factory get commands
+            break;
+        default:
+            error_handler =  e_unknown_k_command;
+            break;  
+    }    
+    return error_handler; 
+}
+
 uint8_t process_l_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error; 
+    
     switch (linkplay_command[5])
     {
         case 'E':
-            process_led_command(linkplay_command);                      // Linkplay factory reset commands
+            error_handler = process_led_command(linkplay_command);                      // Linkplay factory reset commands
             break;
         default:
-            return 9;
+            error_handler =  e_unknown_l_command;
             break;  
     }    
-    return 0;  
+    return error_handler;  
 }
  
 uint8_t process_m_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error; 
+    
     switch (linkplay_command[5])
     {
         case 'C':
-            process_mcu_command(linkplay_command);                      // Linkplay queries of our microprocessor
+            error_handler = process_mcu_command(linkplay_command);                      // Linkplay queries of our microprocessor
             break;
         case 'E':
-            process_mea_command(linkplay_command);                      // Linkplay meadia metadata commands
+            error_handler = process_mea_command(linkplay_command);                      // Linkplay meadia metadata commands
             break;
         case 'I':
-            process_mic_command(linkplay_command);                      // Linkplay meadia metadata commands
-            break;            
+            error_handler = process_pow_command(linkplay_command);                      // Linkplay meadia metadata commands
+            break;     
         case 'U':
-            process_mut_command(linkplay_command);                      // Linkplay command to mute audio
+            error_handler = process_mut_command(linkplay_command);                      // Linkplay command to mute audio
             break;
         case '2':
-            process_m2s_command(linkplay_command);                      // Linkplay master to slave command pass through
+            error_handler = process_m2s_command(linkplay_command);                      // Linkplay master to slave command pass through
             break;        
         default:
-            return 10;
+            error_handler =  e_unknown_m_command;
             break;
     }    
-    return 0;
+    return error_handler; 
 }
- 
+
+uint8_t process_n_commands(char* linkplay_command)
+{
+    uint8_t error_handler = e_no_error; 
+    
+    switch (linkplay_command[5])
+    {
+        case 'X':
+            error_handler = process_nxt_command(linkplay_command);                      // Linkplay factory reset commands
+            break;
+        default:
+            error_handler =  e_unknown_n_command;
+            break;  
+    }    
+    return error_handler;  
+}
+
 uint8_t process_p_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error; 
+    
     switch (linkplay_command[6])
     {
         case 'M':
-            process_plm_command(linkplay_command);                      // Linkplay playback mode commands
+            error_handler = process_plm_command(linkplay_command);                      // Linkplay playback mode commands
             break;
         case 'P':
-            process_plp_command(linkplay_command);                      // Linkplay repeat mode commands
+            error_handler = process_plp_command(linkplay_command);                      // Linkplay repeat mode commands
             break;
         case 'T':
-            process_pmt_command(linkplay_command);
+            error_handler = process_pmt_command(linkplay_command);
             break;
         case 'Y':
-            process_ply_command(linkplay_command);                      // Linkplay playback commands
+            error_handler = process_ply_command(linkplay_command);                      // Linkplay playback commands
             break;     
         default:
-            return 11;
+            error_handler =  e_unknown_p_command;
             break;  
     }    
-    return 0;
+    return error_handler; 
 }
  
 uint8_t process_r_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error; 
+    
     switch (linkplay_command[5])
     {
         case 'A':
-            process_ra0_command(linkplay_command);                      // Linkplay wifi access point information commands
+            error_handler = process_ra0_command(linkplay_command);                      // Linkplay wifi access point information commands
             break;
         default:
-            return 12;
+            error_handler =  e_unknown_r_command;
             break;  
     }    
-    return 0;  
+    return error_handler; 
 }
  
 uint8_t process_s_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error; 
+    
     switch (linkplay_command[5])
     {
         case 'E':
-            process_set_command(linkplay_command);                      // Linkplay set time change commands (YYYYMMDDHHMMSS and mon/tue/wed/.../sun)
+            error_handler = process_set_command(linkplay_command);                      // Linkplay set time change commands (YYYYMMDDHHMMSS and mon/tue/wed/.../sun)
+            break;
+        case 'L':
+            error_handler = process_sli_command(linkplay_command);                      // Linkplay set time change commands (YYYYMMDDHHMMSS and mon/tue/wed/.../sun)
             break;
         case 'T':
-            process_sta_command(linkplay_command);                      // Linkplay wireless status commands
+            error_handler = process_sta_command(linkplay_command);                      // Linkplay wireless status commands
             break;
         case '2':
-            process_s2m_command(linkplay_command);                      // Linkplay slave to master command pass through
+            error_handler = process_s2m_command(linkplay_command);                      // Linkplay slave to master command pass through
             break;  
         default:
-            return 13;
+            error_handler = e_unknown_s_command;
             break;
     }    
-    return 0;
+    return error_handler; 
 }
  
 uint8_t process_v_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error; 
+    
     switch (linkplay_command[5])
     {
         case 'O':
-            process_vol_command(linkplay_command);                      // Linkplay volume adjusting commands
+            error_handler = process_vol_command(linkplay_command);                      // Linkplay volume adjusting commands
             break;
         default:
-            return 14;
+            error_handler =  e_unknown_v_command;
             break;  
     }    
-    return 0;  
+    return error_handler; 
 }
  
 uint8_t process_w_commands(char* linkplay_command)
 {
+    uint8_t error_handler = e_no_error; 
+    
     switch (linkplay_command[5])
     {
         case 'A':
-            process_wan_command(linkplay_command);
+            error_handler = process_wan_command(linkplay_command);
             break;
         case 'P':
-            process_wps_command(linkplay_command);                      // Linkplay wireless WPS config commands
+            error_handler = process_wps_command(linkplay_command);                      // Linkplay wireless WPS config commands
             break;  
         case 'W':
-            process_www_command(linkplay_command);                      // Linkplay internet connection commands
+            error_handler = process_www_command(linkplay_command);                      // Linkplay internet connection commands
             break;  
         default:
-            return 15;
+            error_handler = e_unknown_w_command;
             break;  
     }    
-    return 0;
+    return error_handler; 
 }
 
 uint8_t process_bot_command(char* linkplay_command)                   // Linkplay firmware updating commands
@@ -365,11 +388,14 @@ uint8_t process_bot_command(char* linkplay_command)                   // Linkpla
     if (strncmp((linkplay_command + 8), "DON", 3) == 0)
     {   
         Serial.println("Linkplay is done booting. This is also the heartbeat command");
+        return e_no_error;
     }
-    else
+    else if (strncmp((linkplay_command + 8), "UP0", 3) == 0)
     {
-        Serial.println("Linkplay is done booting. This one time command acknowledges that");  
+        Serial.println("Linkplay is done booting. This one time command acknowledges that");
+        return e_no_error;  
     }
+    return e_unknown_bot_command;
 }
 
 
@@ -385,34 +411,41 @@ uint8_t process_bur_command(char* linkplay_command)                   // Linkpla
         case 'G':
             Serial.println("Linkplay is updating its firmware!");
             break;
-        case '1':
+        case '2':
             Serial.println("Linkplay firmware update successful");
             break;
-        case '2':
+        case '3':
             Serial.println("Linkplay firmware update failed!");
             break;  
         default:
+            return e_unknown_bur_command;
             break;
-    }       
+    }     
+    return e_no_error;   
 }
  
 uint8_t process_cap_command(char* linkplay_command)                   // Linkplay commands after factory reset
 {   /*
         "AXX+CAP+GET"                                                   // command on the first boot after a factory reset. The returned information will be saved permanently.
     */
-    Serial.println("Linkplay booted after factory reset, needs pertinent information");
-    Serial1.print("MCU+CAP+PRJPSAUDIO_Stellar&");
-    Serial1.print("MCU+PTV+000");
-    Serial1.print("MCU+SPY+BRNPSAUDIO&");
-    Serial1.print("MCU+SPY+NAMStellarIntegrated&");
-    Serial1.print("MCU+SPY+TYP0&");
-    Serial1.print("MCU+CAP+00100001100&");
-    Serial1.print("MCU+CAP+00200000800&");
-    Serial1.print("MCU+CAP+LAUen_us&");
-    
-    Serial1.print("MCU+CAP+STMfffffffc&");
-    Serial1.print("MCU+CAP+PLM00000000&");
-    Serial1.print("MCU+PRESET+3&");
+    if (strncmp((linkplay_command + 8), "GET", 3) == 0)
+    {
+        Serial.println("Linkplay booted after factory reset, needs pertinent information");
+        Serial1.print("MCU+CAP+PRJPSAUDIO_Stellar&");
+        Serial1.print("MCU+PTV+000");
+        Serial1.print("MCU+SPY+BRNPSAUDIO&");
+        Serial1.print("MCU+SPY+NAMStellarIntegrated&");
+        Serial1.print("MCU+SPY+TYP0&");
+        Serial1.print("MCU+CAP+00100001100&");
+        Serial1.print("MCU+CAP+00200000800&");
+        Serial1.print("MCU+CAP+LAUen_us&");
+        
+        Serial1.print("MCU+CAP+STMfffffffc&");
+        Serial1.print("MCU+CAP+PLM00000000&");
+        Serial1.print("MCU+PRESET+3&");
+        return e_no_error;
+    }
+    return e_unknown_cap_command;
 }
  
 uint8_t process_chn_command(char* linkplay_command)                    // Linkplay channel information (stereo / mono left / mono right)
@@ -423,17 +456,16 @@ uint8_t process_chn_command(char* linkplay_command)                    // Linkpl
                                                                         // 001 Left channel
                                                                         // 002 Right channel
     */
-    uint16_t audio_channel_status = 0;
-
+    uint8_t error_handler = e_no_error; 
+    
     if (strncmp((linkplay_command + 8), "GET", 3) == 0)
     {
         Serial.println("Get the output channel congifuration for linkplay: Stereo, Left, or Right");
+        return e_no_error; 
     }
     else
     { 
-        audio_channel_status = linkplay_command_data_extraction(linkplay_command);
- 
-        switch(audio_channel_status)
+        switch(linkplay_command_data_extraction(linkplay_command))
         {
           case e_stereo:
               Serial.println("audio is in stereo");
@@ -445,18 +477,25 @@ uint8_t process_chn_command(char* linkplay_command)                    // Linkpl
               Serial.println("audio is only righ chan");
               break;
           default:
+              error_handler = e_unknown_chan_config;
               break;
         }
-        return 0;
+        return error_handler; 
     }
+    return e_unknown_chn_command;
 }
  
 uint8_t process_dev_command(char* linkplay_command)                    // Linkplay device query commands
 {
        // "AXX+DEV+RST"                                                   // MCU should NOT automatically reboot or power off WiFi module after updating the firmware.
                                                                         // It should wait for WiFi module to send AXX+DEV+RST or AXX+DEV+RST in case AXX+DEV+RST gets lost.
+    if (strncmp((linkplay_command + 8), "RST", 3) == 0)
+    {
+        Serial.println("linkplay is resetting - don't poll it until it gives the ok");
+        return e_no_error;
+    }
 
-       Serial.println("linkplay is resetting - don't poll it until it gives the ok");
+    return e_unknown_dev_command;  
 }
  
 uint8_t process_eth_command(char* linkplay_command)                    // Linkplay ethernet commands
@@ -469,17 +508,16 @@ uint8_t process_eth_command(char* linkplay_command)                    // Linkpl
                                                                         // FFF Disabled
     */
   
-    uint16_t ethernet_status = 0;
+    uint8_t error_handler = e_no_error;
 
     if (strncmp((linkplay_command + 8), "FFF", 3) == 0)
     {
         Serial.println("Ethernet is disabled");
+        return error_handler; 
     }
     else
-    {
-        ethernet_status = linkplay_command_data_extraction(linkplay_command);
-     
-        switch(ethernet_status)
+    {     
+        switch(linkplay_command_data_extraction(linkplay_command))
         {
             case e_ethernet_disconnected:
                 Serial.println("Ethernet is disconnected");
@@ -488,22 +526,40 @@ uint8_t process_eth_command(char* linkplay_command)                    // Linkpl
                 Serial.println("Ethernet is connected!");
                 break;
             default:
+                error_handler = e_unknown_eth_command;
                 break;
         }
     }
-    return 0;
+    return error_handler;
 }
  
 uint8_t process_fac_command(char* linkplay_command)                    // Linkplay factory reset commands
 {
     //   "AXX+FACTORY"                                                 // WiFi sends this command to notify MCU that it is going to do a factory reset
-    Serial.println("Linkplay is factory resetting.\nWe'll need to supply it information upon it rebooting.");
+
+    uint8_t error_handler = e_no_error; 
+
+    if (strncmp((linkplay_command + 8), "ORY", 3) == 0)
+    {
+        Serial.println("Linkplay is factory resetting.\nWe'll need to supply it information upon it rebooting.");
+    }
+    else if (strncmp((linkplay_command + 8), "POW", 3) == 0)
+    {
+        Serial.println("Linkplay is factory resetting.\nUnit is not power cycling.");
+    }
+    else
+    {
+        error_handler = e_unknown_fac_command;
+    }
+
+    return error_handler; 
 }
 
 uint8_t process_get_command(char* linkplay_command)
 {
     Serial.println("Set SSID of linkplay");
     Serial1.println("MCU+SID+StellarIntegrated");
+    return e_no_error;
 }
 
 uint8_t process_inf_command(char* linkplay_command)                    // Linkplay inf commands
@@ -529,7 +585,6 @@ uint8_t process_inf_command(char* linkplay_command)                    // Linkpl
     uint16_t data_start_point = 0;
     uint16_t data_end_point = 0;
     char char_buf[100];
-    uint16_t store_pos[100] = {0};
     uint16_t command_length = strlen(linkplay_command);
     
     for (data_start_point = 12; data_start_point < command_length; data_start_point++)
@@ -549,7 +604,7 @@ uint8_t process_inf_command(char* linkplay_command)                    // Linkpl
             num_args ++;
         }
     }
-    return 0; 
+    return e_no_error; 
 }
 
 uint8_t inf_command_parser(uint16_t current_inf, char* char_buf)
@@ -807,6 +862,7 @@ uint8_t inf_command_parser(uint16_t current_inf, char* char_buf)
         default:
             break; 
     }
+    return e_no_error;
 }
 
 uint8_t process_i2s_command(char* linkplay_command)
@@ -817,7 +873,6 @@ uint8_t process_i2s_command(char* linkplay_command)
     uint8_t sample_rate_chars = 0; 
     uint16_t i = 0; 
     uint16_t off_set = 11; 
-    uint16_t samp_depth = 0; 
     
     if (linkplay_command[11] == '&')
     {
@@ -859,12 +914,19 @@ uint8_t process_i2s_command(char* linkplay_command)
         strncpy(c_bit_depth,linkplay_command+(11+sample_rate_chars), 2);
         Serial.print(atoi(c_bit_depth));
         Serial.println(" bit");
+        return e_no_error;
+}
+
+uint8_t process_key_command(char* linkplay_command)
+{
+  
 }
 
 uint8_t process_led_command(char* linkplay_command)                    // Linkplay factory teset commands
 {
       //  "AXX+LED+TES"                                                   // Notify MCU that the module is in factory test mode
       Serial.println("Linkplay is in test mode. flashing LEDs (not hooked up)");
+      return e_no_error;
 }
  
 uint8_t process_mcu_command(char* linkplay_command)                    // Linkplay queries of our microprocessor
@@ -892,6 +954,7 @@ uint8_t process_mcu_command(char* linkplay_command)                    // Linkpl
         Serial.println("Send PIC firmware version ex: 0119");;
         Serial1.println("MCU+VER+0119&");
     }
+    return e_no_error;
 }
  
 uint8_t process_mea_command(char* linkplay_command)                    // Linkplay meadia metadata commands
@@ -908,17 +971,14 @@ uint8_t process_mea_command(char* linkplay_command)                    // Linkpl
     char hex_title[100];
     char hex_artist[100];
     char hex_album[100];
+    
     char ascii_title[100];
     char ascii_artist[100];
     char ascii_album[100];
-    uint16_t n = 0; 
-    uint16_t l = 0; 
-    uint16_t m = 0; 
-    uint16_t z = 0; 
-    uint16_t p = 0; 
-    uint16_t q = 0; 
-    uint16_t i = 0; 
-
+    
+    uint16_t title_char_counter = 0; 
+    uint16_t artist_char_counter = 0;     
+    uint16_t album_char_counter = 0; 
 
     memset(hex_title, 0, 100);
     memset(hex_artist, 0, 100);    
@@ -935,51 +995,40 @@ uint8_t process_mea_command(char* linkplay_command)                    // Linkpl
     }
     else
     {
-        for(i = 23; i <= strlen(linkplay_command); i++)
+        for(title_char_counter = title_offset; title_char_counter <= strlen(linkplay_command); title_char_counter++)
         {
-            if (linkplay_command[i] == '"')
-            {
-                n = i; 
+            if (linkplay_command[title_char_counter] == '"')
+            { 
                 break; 
             }
         }
-        strncpy(hex_title, (linkplay_command + 23), n-23);
-        hex_title[n-22] = '\0';
+        strncpy(hex_title, (linkplay_command + title_offset), title_char_counter-title_offset);
         hex2ascii(hex_title, ascii_title, strlen(hex_title), strlen(ascii_title));
-        Serial.print("Title: ");
-        Serial.println(ascii_title);
+        Serial.print("Title: "); Serial.println(ascii_title);
 
-        for(i = (n+14); i < 1024; i++)
+        for(artist_char_counter = (title_char_counter+artist_offset); artist_char_counter < 1024; artist_char_counter++)
         {
-            if (linkplay_command[i] == '"')
+            if (linkplay_command[artist_char_counter] == '"')
             {
-                l = i; 
                 break; 
             }
         }   
-        q = l - (n+14);
-        strncpy(hex_artist, (linkplay_command + (n+14)), q);
-        hex_artist[q+1] = '\0';
+        strncpy(hex_artist, (linkplay_command + (title_char_counter+artist_offset)), (artist_char_counter - (title_char_counter+artist_offset)));
         hex2ascii(hex_artist, ascii_artist, strlen(hex_artist), strlen(ascii_artist));
-        Serial.print("Artist: ");
-        Serial.println(ascii_artist);
+        Serial.print("Artist: "); Serial.println(ascii_artist);
 
-        for(i = l+13; i < 1024; i++)
+        for(album_char_counter = (artist_char_counter+album_offset); album_char_counter < 1024; album_char_counter++)
         {
-            if (linkplay_command[i] == '"')
+            if (linkplay_command[album_char_counter] == '"')
             {
-                m = i; 
                 break; 
             }
         }   
-        z = m - (l+13);
-        strncpy(hex_album, (linkplay_command + l+13), z); 
-        hex_album[z+1] = '\0';
+        strncpy(hex_album, (linkplay_command + (artist_char_counter+album_offset)), (album_char_counter - (artist_char_counter+album_offset))); 
         hex2ascii(hex_album, ascii_album, strlen(hex_album), strlen(ascii_album));
-        Serial.print("Album: ");
-        Serial.println(ascii_album);
-        i = m = n = l = q = z = 0;
+        Serial.print("Album: "); Serial.println(ascii_album);
     }
+    return e_no_error;
 }
 
 uint8_t process_mic_command(char* linkplay_command)
@@ -992,6 +1041,7 @@ uint8_t process_mic_command(char* linkplay_command)
         default: 
             break;
     }
+    return e_no_error;
 }
  
 uint8_t process_mut_command(char* linkplay_command)                    // Linkplay command to mute audio
@@ -1006,27 +1056,26 @@ uint8_t process_mut_command(char* linkplay_command)                    // Linkpl
 
     switch(mute_status)
     {
-        case e_mute:
+        case e_unmute:
             Serial.println("mute output");
             break; 
-        case e_unmute:
+        case e_mute:
             Serial.println("unmute output");
             break; 
         default:
             break;  
     }
-    return 0;
+    return e_no_error;
 }
  
 uint8_t process_m2s_command(char* linkplay_command)                    // Linkplay master to slave command pass through
 {
        // "AXX+M2S+nnn"                                                // When a pass-through session starts, slave speakers will receive AXX+M2S+nnn
+       return e_no_error;
 }
 
 uint8_t process_nxt_command(char* linkplay_command)                    // Linkplay alarm commands
 {
-    uint16_t alarm_time = 0; 
-    char c_alarm_time[100];
     uint16_t i = 0; 
     uint16_t num_chars = 0; 
     
@@ -1042,6 +1091,7 @@ uint8_t process_nxt_command(char* linkplay_command)                    // Linkpl
             break; 
         }    
     }
+    return e_no_error;
 }
 
 uint8_t process_plm_command(char* linkplay_command)                    // Linkplay playback mode commands
@@ -1108,7 +1158,7 @@ uint8_t process_plm_command(char* linkplay_command)                    // Linkpl
         default:
             return 1;
     }
-    return 0;
+    return e_no_error;
 }
  
 uint8_t process_plp_command(char* linkplay_command)                    // Linkplay repeat mode commands
@@ -1144,7 +1194,7 @@ uint8_t process_plp_command(char* linkplay_command)                    // Linkpl
         default:
             break;
     }
-    return 0;
+    return e_no_error;
 }
  
 uint8_t process_ply_command(char* linkplay_command)                    // Linkplay playback commands
@@ -1153,22 +1203,41 @@ uint8_t process_ply_command(char* linkplay_command)                    // Linkpl
         "AXX+PLY+xxx"                                                   // WiFi sends this command to update the playback status, where xxx is the status
                                                                         // 000 Stopped
                                                                         // 001 Playing
+        AXX+PLY+POStime&                                                // current time in ms                                                                
     */
   
-    uint16_t playback_status_int = 0;
- 
-    playback_status_int = linkplay_command_data_extraction(linkplay_command);
-
-    switch (playback_status_int)
+    char playback_time[50];
+    uint16_t i = 0; 
+    
+    if (strncmp((linkplay_command + 8), "POS", 3) == 0)
     {
-        case e_stopped_playback:
-            Serial.println("playback stopped");
-            break;  
-        case e_playback_started:
-            Serial.println("playback started");
-            break;
+        if (linkplay_command[11] != '&')
+        {  
+            for (i = 11; i < strlen(linkplay_command); i++)
+            {
+                if (linkplay_command[i] == '&')
+                {
+                    break;
+                }
+            }
+            memset(playback_time, 0, 50);
+            strncpy(playback_time, linkplay_command+11, (i-11));
+            Serial.println(atoi(playback_time));
+        }
     }
-    return 0;
+    else
+    {
+        switch (linkplay_command_data_extraction(linkplay_command))
+        {
+            case e_stopped_playback:
+                Serial.println("playback stopped");
+                break;  
+            case e_playback_started:
+                Serial.println("playback started");
+                break;
+        }
+    }
+    return e_no_error;
 }
 uint8_t process_pmt_command(char* linkplay_command)                    // Linkplay voice prompt commands
 {
@@ -1187,6 +1256,19 @@ uint8_t process_pmt_command(char* linkplay_command)                    // Linkpl
             Serial.println("voice prompt can be triggered by PIC");
             break;        
     }
+    return e_no_error;
+}
+
+uint8_t process_pow_command(char* linkplay_command)                    // Linkplay wifi access point information commands
+{
+  /*
+    AXX+POW+OFF 
+    AXX+POW+xxx                     000 = normal
+                                    001 = power saving mode
+                                    002 = firmware upgrade - cants power down
+                                    003 = the device is restarting
+  */
+
 }
 
 uint8_t process_ra0_command(char* linkplay_command)                    // Linkplay wifi access point information commands
@@ -1199,9 +1281,7 @@ uint8_t process_ra0_command(char* linkplay_command)                    // Linkpl
                                                                         // 002 One client disconnected but there are still some clients connected
                                                                         // FFF Hotspot is hidden
     */
- 
-    uint16_t access_point_status = 0;
-    
+     
     if (strncmp((linkplay_command + 8), "+ON", 3) == 0)
     {
         Serial.println("Linkplay hotspot is on");           
@@ -1214,15 +1294,28 @@ uint8_t process_ra0_command(char* linkplay_command)                    // Linkpl
     {
         Serial.println("Linkplay hotspot is hidden");           
     }
+    else if (strncmp((linkplay_command + 8), "FFE", 3) == 0)
+    {
+        Serial.println("Linkplay hotspot is not hidden");
+    }
     else
     {
-        access_point_status = linkplay_command_data_extraction(linkplay_command);
-
-        Serial.print("there are/is ");
-        Serial.print(access_point_status);
-        Serial.println(" device(s) connected to the hotspot");           
+        switch (linkplay_command_data_extraction(linkplay_command))
+        {
+            case 0:
+                Serial.println("no devices connected");
+                break; 
+            case 1:
+                Serial.println("a new device has connected to the hotspot");
+                break;
+            case 2:
+                Serial.println("Some devices are disconnected,\nbut there are other devices connected");
+                break;   
+            default:
+                return 56;
+        }       
     }
-    return 0;
+    return e_no_error;
 }
  
 uint8_t process_set_command(char* linkplay_command)                    // Linkplay set time change commands (YYYYMMDDHHMMSS and mon/tue/wed/.../sun)
@@ -1300,7 +1393,13 @@ uint8_t process_set_command(char* linkplay_command)                    // Linkpl
                 break;
         }    
     }
-     
+    return e_no_error;
+}
+
+uint8_t process_sli_command(char* linkplay_command)   
+{
+    //AXX+SLI+OTA
+    //AXX+SLI+DON
 }
  
 uint8_t process_sta_command(char* linkplay_command)                    // Linkplay wireless status commands
@@ -1348,13 +1447,14 @@ uint8_t process_sta_command(char* linkplay_command)                    // Linkpl
        default:
           break; 
     }
-    return 0;
+    return e_no_error;
 }
  
 uint8_t process_s2m_command(char* linkplay_command)                    // Linkplay slave to master command pass through
 {
        // "AXX+S2M+nnn"                                                   // When a pass-through session starts, master speaker MCU will receive AXX+S2M+nnn
       Serial.println("PIC initiated master pass thorugh to slave linkplays");
+      return e_no_error;
 }
  
 uint8_t process_vol_command(char* linkplay_command)                    // Linkplay volume adjusting commands
@@ -1376,7 +1476,8 @@ uint8_t process_vol_command(char* linkplay_command)                    // Linkpl
         volume_int = linkplay_command_data_extraction(linkplay_command);
         Serial.print("set volume to: ");
         Serial.println(volume_int);
-    }  
+    }
+    return e_no_error;  
 }
 uint8_t process_wan_command(char *linkplay_command)
 {
@@ -1463,7 +1564,7 @@ uint8_t process_wan_command(char *linkplay_command)
         string_begin += string_size;
         string_size = 0;
     }
-    return 0;
+    return e_no_error;
 }
 
 uint8_t process_wps_command(char* linkplay_command)                    // Linkplay wireless WPS config commands
@@ -1484,7 +1585,8 @@ uint8_t process_wps_command(char* linkplay_command)                    // Linkpl
             break;
         default:
             break;
-     }      
+     }
+     return e_no_error;      
 }
  
 uint8_t process_www_command(char* linkplay_command)                    // Linkplay internet connection commands
@@ -1512,7 +1614,7 @@ uint8_t process_www_command(char* linkplay_command)                    // Linkpl
       default: 
           break;
     }
-    return 0;
+    return e_no_error;
 }
  
 uint16_t linkplay_command_data_extraction(char* linkplay_command)
@@ -1563,7 +1665,7 @@ int16_t hex2ascii(const char *hexArray, char *asciiArray, uint8_t hexArrayLength
             
         if(val1 > 15 || val2 > 15 || val1 < 0 || val2 < 0)
         {
-            return 0;
+            return e_no_error;
         }
                     
         asciiArray[j] = val1*16 + val2;        
@@ -1572,15 +1674,171 @@ int16_t hex2ascii(const char *hexArray, char *asciiArray, uint8_t hexArrayLength
     return j;
 }
 
-/*
-AXX+MUT+001
-AXX+PMT+001
-AXX+WAN+LST&
-AXX+WAN+LST43656E747572794C696E6B34373338,0,1&
-AXX+BOT+DON
-AXX+WAN+LST&
-AXX+WAN+LST4E4554474541523137,0,1;7866696E69747977696669,0,0;726F636C6F6E65,0,1&
-AXX+STA+000
-AXX+STA+006
-AXX+MEA+DAT54686520536967687473;456e746572205368696b617269;54686520537061726b&
-*/
+
+void linkplay_error_handler(uint8_t error_handler, char* linkplay_command)
+{
+    Serial.print(linkplay_command);
+    Serial.print(" ");
+               
+    switch (error_handler)
+    {
+        case e_no_error: 
+            //Serial.println("command read sucess");
+            break;
+        case e_unknown_AXX_command:
+            Serial.println("not a formatted AXX command");
+            break; 
+        case e_unknown_command:    
+            Serial.println("command was not found in first layer of filtering");
+            break;
+        case e_unknown_b_command: 
+            Serial.println("command was not found in b commands");
+            break;
+        case e_unknown_c_command:
+            Serial.println("command was not found in c commands");
+            break;
+        case e_unknown_d_command: 
+            Serial.println("command was not found in d commands");
+            break;
+        case e_unknown_e_command:
+            Serial.println("command was not found in e commands");
+            break;
+        case e_unknown_f_command: 
+            Serial.println("command was not found in f commands");
+            break;
+        case e_unknown_g_command:
+            Serial.println("command was not found in g commands");
+            break;
+        case e_unknown_i_command:
+            Serial.println("command was not found in i commands");
+            break;
+        case e_unknown_k_command:
+            Serial.println("command was not found in k commands");
+            break;
+        case e_unknown_l_command: 
+            Serial.println("command was not found in l commands");
+            break;
+        case e_unknown_m_command:
+            Serial.println("command was not found in m commands");
+            break;        
+        case e_unknown_n_command:
+            Serial.println("command was not found in n commands");
+            break;
+        case e_unknown_p_command: 
+            Serial.println("command was not found in p commands");
+            break;
+        case e_unknown_r_command:
+            Serial.println("command was not found in r commands");
+            break;
+        case e_unknown_s_command: 
+            Serial.println("command was not found in s commands");
+            break;
+        case e_unknown_v_command:
+            Serial.println("command was not found in v commands");
+            break;
+        case e_unknown_w_command:
+            Serial.println("command was not found in w commands");
+            break;
+        case e_unknown_bot_command:
+            Serial.println("command was not found in bot commands");
+            break;
+        case e_unknown_bur_command:
+            Serial.println("command was not found in bur commands");
+            break;
+        case e_unknown_cap_command:
+            Serial.println("command was not found in cap commands");
+            break;
+        case e_unknown_chn_command:
+            Serial.println("command was not found in chn commands");
+            break;
+        case e_unknown_dev_command:
+            Serial.println("command was not found in dev commands");
+            break;
+        case e_unknown_eth_command:
+            Serial.println("command was not found in eth commands");
+            break;
+        case e_unknown_fac_command:
+            Serial.println("command was not found in fac commands");
+            break;
+        case e_unknown_get_command:
+            Serial.println("command was not found in get commands");
+            break;
+        case e_unknown_inf_command:
+            Serial.println("command was not found in inf commands");
+            break;
+        case e_unknown_i2s_command:
+            Serial.println("command was not found in i2s commands");
+            break;
+        case e_unknown_key_command:
+            Serial.println("command was not found in key commands");
+            break;
+        case e_unknown_led_command:
+            Serial.println("command was not found in led commands");
+            break;
+        case e_unknown_mcu_command:
+            Serial.println("command was not found in mcu commands");
+            break;
+        case e_unknown_mea_command:
+            Serial.println("command was not found in mea commands");
+            break;
+        case e_unknown_mic_command:
+            Serial.println("command was not found in mic commands");
+            break;
+        case e_unknown_mut_command:
+            Serial.println("command was not found in mut commands");
+            break;
+        case e_unknown_m2s_command:
+            Serial.println("command was not found in m2s commands");
+            break;
+        case e_unknown_nxt_command:
+            Serial.println("command was not found in nxt commands");
+            break;
+        case e_unknown_plm_command:
+            Serial.println("command was not found in plm commands");
+            break;
+        case e_unknown_plp_command:
+            Serial.println("command was not found in plp commands");
+            break;
+        case e_unknown_ply_command:
+            Serial.println("command was not found in ply commands");
+            break;
+        case e_unknown_pmt_command:
+            Serial.println("command was not found in pmt commands");
+            break;
+        case e_unknown_pow_command:
+            Serial.println("command was not found in pow commands");
+            break;
+        case e_unknown_ra0_command:
+            Serial.println("command was not found in ra0 commands");
+            break;
+        case e_unknown_set_command:
+            Serial.println("command was not found in set commands");
+            break;
+        case e_unknown_sli_command:
+            Serial.println("command was not found in sli commands");
+            break;
+        case e_unknown_sta_command:
+            Serial.println("command was not found in sta commands");
+            break;
+        case e_unknown_s2m_command:
+            Serial.println("command was not found in s2m commands");
+            break;
+        case e_unknown_uid_command:
+            Serial.println("command was not found in uid commands");
+            break;
+        case e_unknown_vol_command:
+            Serial.println("command was not found in vol commands");
+            break;
+        case e_unknown_wan_command:
+            Serial.println("command was not found in wan commands");
+            break;
+        case e_unknown_wps_command:
+            Serial.println("command was not found in wps commands");
+            break;
+        case e_unknown_www_command:
+            Serial.println("command was not found in www commands");
+            break;
+        case e_unknown_chan_config:
+            break; 
+    }
+}
