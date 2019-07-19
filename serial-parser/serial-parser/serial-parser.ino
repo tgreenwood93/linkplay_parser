@@ -1,4 +1,5 @@
 #include "command_processor.h"
+#include "linkplay_manager.h"
 
 void checkSerial1(void); 
 void checkSerialUSB(void);

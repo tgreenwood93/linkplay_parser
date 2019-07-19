@@ -1303,7 +1303,7 @@ uint8_t process_pow_command(char* linkplay_command)                    // Linkpl
                                     002 = firmware upgrade - cants power down
                                     003 = the device is restarting
   */
-
+    return e_unknown_pow_command; 
 }
 
 uint8_t process_ra0_command(char* linkplay_command)                    // Linkplay wifi access point information commands
@@ -1316,7 +1316,8 @@ uint8_t process_ra0_command(char* linkplay_command)                    // Linkpl
                                                                         // 002 One client disconnected but there are still some clients connected
                                                                         // FFF Hotspot is hidden
     */
-     
+    uint8_t error_handler = e_no_error; 
+    
     if (strncmp((linkplay_command + 8), "+ON", 3) == 0)
     {
         Serial.println("Linkplay hotspot is on");           
@@ -1333,7 +1334,7 @@ uint8_t process_ra0_command(char* linkplay_command)                    // Linkpl
     {
         Serial.println("Linkplay hotspot is not hidden");
     }
-    else
+    else if (linkplay_command[8] == '0')
     {
         switch (linkplay_command_data_extraction(linkplay_command))
         {
@@ -1347,10 +1348,15 @@ uint8_t process_ra0_command(char* linkplay_command)                    // Linkpl
                 Serial.println("Some devices are disconnected,\nbut there are other devices connected");
                 break;   
             default:
-                return 56;
+                error_handler = e_unknown_connection_status;
+                break;
         }       
     }
-    return e_no_error;
+    else
+    {
+        error_handler = e_unknown_ra0_command; 
+    }
+    return error_handler;
 }
  
 uint8_t process_set_command(char* linkplay_command)                    // Linkplay set time change commands (YYYYMMDDHHMMSS and mon/tue/wed/.../sun)
@@ -1396,7 +1402,7 @@ uint8_t process_set_command(char* linkplay_command)                    // Linkpl
         Serial.print("SS: ");
         Serial.println(atoi(c_current_second)); 
     }
-    else
+    else if (strncmp((linkplay_command + 8), "WEK", 3) == 0)
     {
         strncpy(c_day_of_the_week, linkplay_command+11, 1);
         day_of_the_week = atoi(c_day_of_the_week);
@@ -1500,17 +1506,31 @@ uint8_t process_vol_command(char* linkplay_command)                    // Linkpl
         "AXX+VOL+nnn"                                                   // WiFi module sends this command to request volume change,
                                                                         // where nnn is the volume (0 to 100)
     */
-    uint16_t volume_int = 0;
+        uint16_t volume_int = 0;
 
     if (strncmp((linkplay_command + 8), "GET", 3) == 0)
     {
         Serial.println("Get the PIC current volume");
+        send_linkplay_pic_volume();
+    }
+    else if (linkplay_command[11] == '0' || linkplay_command[11] == '1')
+    {
+        volume_int = linkplay_command_data_extraction(linkplay_command);
+        if (volume_int < 101)
+        {
+            Serial.print("set volume to: ");
+            Serial.println(volume_int);
+            LP_set_pic_volume(volume_int);
+        }
+        else
+        {
+            return e_volume_out_of_bounds;
+        }
+        
     }
     else
     {
-        volume_int = linkplay_command_data_extraction(linkplay_command);
-        Serial.print("set volume to: ");
-        Serial.println(volume_int);
+        return e_unknown_vol_command; 
     }
     return e_no_error;  
 }
@@ -1879,3 +1899,5 @@ void linkplay_error_handler(uint8_t error_handler, char* linkplay_command)
             break;
     }
 }
+
+/*test*/
