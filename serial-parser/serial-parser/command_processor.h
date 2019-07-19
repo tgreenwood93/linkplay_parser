@@ -12,6 +12,14 @@ static const uint8_t artist_offset = 14;
 static const uint8_t album_offset = 13; 
 static const uint8_t no_error  = 0; 
 
+
+typedef enum
+{
+    e_firmware_updateing = 1,
+    e_update_successful, 
+    e_update_failed
+} LinkPlay_firmware_update_t;
+
 enum 
 {
       e_no_internet_connection = 0,
@@ -43,11 +51,11 @@ enum {
     e_failed_to_get_ip_address
   };
 
-enum {
+typedef enum {
     e_stereo = 0,
     e_left_chan,
     e_right_chan,
-};
+}LinkPlay_Audio_Channel_Options_t;
 
 enum {
     e_ethernet_disconnected = 0,
@@ -212,8 +220,9 @@ uint8_t process_vol_command(char* linkplay_command);                    // Linkp
 uint8_t process_wan_command(char* linkplay_command);                    // Linkplay wireless acress points 
 uint8_t process_wps_command(char* linkplay_command);                    // Linkplay wireless WPS config commands
 uint8_t process_www_command(char* linkplay_command);                    // Linkplay internet connection commands
+
 uint16_t linkplay_command_data_extraction(char* linkplay_command);
-void error_handler(void);
+
 int16_t hex2ascii(const char *hexArray, char *asciiArray, uint8_t hexArrayLength, uint8_t charArrayLength);
 
 uint8_t inf_command_parser(uint16_t current_inf, char* char_buf);

@@ -1,13 +1,15 @@
 #include "Arduino.h"
+#include "linkplay_manager.h"
+#include "linkplay_error_handler.h"
 
 #ifndef linkplay_manager_h
 #define linkplay_manager_h
 
-void LP_Set_linkplay_firmware_update_status();
-uint8_t LP_Get_linkplay_firmware_update_status(); 
+void LP_Set_linkplay_firmware_update_status(LinkPlay_firmware_update_t update_status);
+LinkPlay_firmware_update_t LP_Get_linkplay_firmware_update_status(); 
 
-void LP_Set_linkplay_audio_channel_status();
-uint8_t LP_Get_linkplay_audio_channel_status();
+void LP_Set_linkplay_audio_channel_status(LinkPlay_Audio_Channel_Options_t channel_config);
+LinkPlay_Audio_Channel_Options_t LP_Get_linkplay_audio_channel_status();
 
 void LP_Set_linkplay_in_reset();
 uint8_t LP_Get_linkplay_in_reset();
@@ -297,4 +299,5 @@ void LP_set_pic_volume(uint8_t lp_volume);
 void LP_Set_linkplay_access_points(); 
 uint8_t LP_Get_linkplay_access_points();
 
+void LP_get_pic_channel_config(); 
 #endif

@@ -4,6 +4,7 @@
 
 #ifndef "linkplay_error_handler.h"
 #define "linkplay_error_handler.h"
+
 enum 
 {
   e_no_error = 0,
